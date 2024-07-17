@@ -1,1 +1,3 @@
 venv/
+.DS_Store
+backend/netdis/media/uploads/
