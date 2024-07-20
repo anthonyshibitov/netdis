@@ -1,6 +1,7 @@
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
 from .models import UploadedFile
@@ -23,13 +24,17 @@ def binary_ingest(request):
         file_obj.name = hash
         
         if UploadedFile.objects.filter(hash = hash).exists():
+            print("not making!")
             return Response(hash)
         else:
-            new_file = UploadedFile(hash=hash)
+            print("new file!")
+            new_file = UploadedFile(file=file_obj, hash=hash)
             new_file.save()
             return Response(hash)
     return Response("Bad request!", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def probe(request):
-    return Response("probed")
+    print(request.user.id)
+    return Response(request.user.id)
