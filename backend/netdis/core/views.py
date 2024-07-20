@@ -76,12 +76,33 @@ def cfg(request):
             for edge in cfg.graph.edges():
                 graph.add_edge(edge[0], edge[1])
                 
-            for node in list(cfg.nodes()):
-                try:
-                    dis_list.append((hex(node.addr), node.block.disassembly.__str__()))
-                except:
-                    dis_list.append((hex(node.addr), "NO DISASM"))
-            return Response(dis_list)
+            cfg_data = {
+                'functions': {}
+            }
+            
+            for func in cfg.kb.functions.values():
+                function_data = {
+                    'name': func.name,
+                    'blocks': {}
+                }
+                
+                for block in func.blocks:
+                    block_data = {
+                        'addr': hex(func.addr),
+                        'disas': None
+                    }
+                    
+                    cb = proj.factory.block(block.addr).capstone
+                    block_data['disas'] = [
+                        {'addr': hex(insn.address), 'op': insn.mnemonic, 'data': insn.op_str}
+                        for insn in cb.insns
+                    ]
+
+                    function_data['blocks'][hex(block.addr)] = block_data
+                cfg_data['functions'][hex(func.addr)] = function_data
+            
+            return Response(cfg_data)
+                
     return Response("error")
 
 @api_view(['POST'])
