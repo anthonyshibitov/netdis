@@ -4,7 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import UploadedFile
+from .models import UploadedFile, Project, Function, Block, Disasm
 import hashlib
 import angr
 import json
@@ -67,7 +67,18 @@ def cfg(request):
             file = UploadedFile.objects.filter(hash = data_dict['hash']).first()
             file_path = "./media/" + file.file.name
             proj = angr.Project(file_path, load_options={'auto_load_libs': False})
+            
+            # Check if project already exists with this hash
+            if(Project.objects.filter(file=file)).exists():
+                proj_obj = Project.objects.get(file=file)
+                return Response(proj_obj.id)
+            
+            proj_obj = Project(file = file)
+            proj_obj.save()
+            print(f"Project ID loaded: {proj_obj.id}")
             cfg = proj.analyses.CFGFast()
+            
+            
             graph = nx.DiGraph()
             dis_list = list()
             for node in cfg.graph.nodes():
@@ -86,9 +97,12 @@ def cfg(request):
                     'blocks': {}
                 }
                 
+                function_obj = Function(project = proj_obj, name = func.name, addr = hex(func.addr))
+                function_obj.save()
+                
                 for block in func.blocks:
                     block_data = {
-                        'addr': hex(func.addr),
+                        'addr': hex(block.addr),
                         'disas': None
                     }
                     
@@ -97,8 +111,16 @@ def cfg(request):
                         {'addr': hex(insn.address), 'op': insn.mnemonic, 'data': insn.op_str}
                         for insn in cb.insns
                     ]
+                    
+                    block_obj = Block(function = function_obj, addr = hex(block.addr))
+                    block_obj.save()
+                    
+                    for insn in cb.insns:
+                        disasm_obj = Disasm(block = block_obj, op = insn.mnemonic, data = insn.op_str, addr = hex(insn.address))
+                        disasm_obj.save()
 
                     function_data['blocks'][hex(block.addr)] = block_data
+                    
                 cfg_data['functions'][hex(func.addr)] = function_data
             
             return Response(cfg_data)
