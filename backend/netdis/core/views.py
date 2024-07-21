@@ -9,29 +9,9 @@ import hashlib
 import angr
 import json
 import networkx as nx
-
-from functools import wraps
-import time
-
-def timer(func):
-    """helper function to estimate view execution time"""
-
-    @wraps(func)  # used for copying func metadata
-    def wrapper(*args, **kwargs):
-        # record start time
-        start = time.time()
-
-        # func execution
-        result = func(*args, **kwargs)
-        
-        duration = (time.time() - start) * 1000
-        # output execution time to console
-        print('view {} takes {:.2f} ms'.format(
-            func.__name__, 
-            duration
-            ))
-        return result
-    return wrapper
+from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block, analyze_file
+from .utils import timer
+from django.core.files.storage import FileSystemStorage
 
 @api_view(['GET'])
 def test_view(request):
@@ -44,18 +24,25 @@ def binary_ingest(request):
     if(request.method == 'POST' and request.FILES.get('file')):
         file_obj = request.FILES['file'] 
         contents = file_obj.read()
-        
         hash = hashlib.sha256(contents).hexdigest()
         file_obj.name = hash
-        
+                
         if UploadedFile.objects.filter(hash = hash).exists():
-            print("not making!")
-            return Response(hash)
+            uploaded_file = UploadedFile.objects.get(hash = hash)
+            print("already exists")
         else:
             print("new file!")
             new_file = UploadedFile(file=file_obj, hash=hash)
             new_file.save()
-            return Response(hash)
+            # DO ANALYSIS AND DB SAVING
+            uploaded_file = new_file
+            analyze_file(uploaded_file)
+            uploaded_file.delete()
+ 
+        project = Project.objects.get(file = uploaded_file)
+        print(f"We have project id {project.id}")
+            
+        return Response(project.id)
     return Response("Bad request!", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -63,8 +50,16 @@ def binary_ingest(request):
 def cfg(request):
     if(request.body):
         data_dict = json.loads(request.body.decode("utf-8"))
-        if UploadedFile.objects.filter(hash = data_dict['hash']).exists():
-            file = UploadedFile.objects.filter(hash = data_dict['hash']).first()
+        hash = data_dict['hash']
+        proj = get_project_from_hash(hash)
+        funcs = get_functions_from_project(proj)
+        funcs_list = list()
+        for func in funcs:
+            funcs_list.append(func.name)
+        #return Response(funcs_list)
+        
+        if UploadedFile.objects.filter(hash = hash).exists():
+            file = UploadedFile.objects.filter(hash = hash).first()
             file_path = "./media/" + file.file.name
             proj = angr.Project(file_path, load_options={'auto_load_libs': False})
             
@@ -131,18 +126,25 @@ def cfg(request):
 def funcs(request):
     if(request.body):
         data_dict = json.loads(request.body.decode("utf-8"))
-        if UploadedFile.objects.filter(hash = data_dict['hash']).exists():
-            file = UploadedFile.objects.filter(hash = data_dict['hash']).first()
-            file_path = "./media/" + file.file.name
-            proj = angr.Project(file_path, load_options={'auto_load_libs': False})
-            proj.analyses.CFGFast()
-            funcs = proj.kb.functions.items()
-            funcs_iter = iter(funcs)
-            funcs_list = list()
-            for func in funcs_iter:
-                funcs_list.append((hex(func[0]),func[1].name))
-            return Response(funcs_list)
-    return Response("BAD")
+        project_id = data_dict['project_id']
+        return Response(get_functions_from_project(project_id))
+    return Response('BAD')
+
+@api_view(['POST'])
+def blocks(request):
+    if(request.body):
+        data_dict = json.loads(request.body.decode("utf-8"))
+        function_id = data_dict['function_id']
+        return Response(get_blocks_from_function(function_id))
+    return Response('BAD')
+
+@api_view(['POST'])
+def disasms(request):
+    if(request.body):
+        data_dict = json.loads(request.body.decode("utf-8"))
+        block_id = data_dict['block_id']
+        return Response(get_disasm_from_block(block_id))
+    return Response('BAD')
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
