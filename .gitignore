@@ -5,4 +5,4 @@ db.sqlite3
 *.log
 *.pot
 *.pyc
-
+npm_modules/
