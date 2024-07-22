@@ -1,0 +1,16 @@
+.main-container {
+    width: 100vw;
+    height: 100vh;
+}
+
+.blue {
+    color: #5b92e5;
+}
+
+.grey {
+    color: #2a2b2a;
+}
+
+.logo {
+    font-size: 5rem;
+}
