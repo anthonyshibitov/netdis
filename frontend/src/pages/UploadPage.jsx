@@ -25,20 +25,31 @@ export default function UploadPage() {
             }
         }
         let state;
-        setStatus("Uploading...")
-        console.log(`Uploading to ${url}...`)
-        axios.post(url, formData, config).then((response) => {
-            setHash(response.data.hash);
-            setProject_id(response.data.project_id);
-            setStatus(`Received hash: ${response.data.hash}`);
-            console.log(`Received hash: ${response.data.hash}`)
-            const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-            return axios.post(url, {"project_id": response.data.project_id});
-        }).then((response) => {
-            state = response.data;
-        }).then(() => {
-            navigate("/analysis", { state });
-        })
+        setStatus("Uploading...");
+        axios.post(url, formData, config).then((response => {
+            if(response.data.project_id != null){
+                const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
+                axios.post(url, {"project_id": response.data.project_id}).then(response => {
+                    navigate("/analysis", {state: response.data});
+                })
+            } else {
+                setStatus("File queued...");
+                const task_id = response.data.id;
+                const timer = setInterval(() => {
+                    const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
+                    const resp = axios.get(url).then((response => {
+                        console.log(response);
+                        if(response.data.status == "DONE"){
+                            clearInterval(timer);
+                            const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
+                            axios.post(url, {"project_id": response.data.project_id}).then(response => {
+                                navigate("/analysis", {state: response.data});
+                            })
+                        }
+                    }))
+                }, 1000);
+            }
+        }))
     }
 
     return (
