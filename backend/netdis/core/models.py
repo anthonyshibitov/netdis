@@ -13,7 +13,7 @@ class UploadedFile(models.Model):
         self.save()
     
 class Project(models.Model):
-    file = models.ForeignKey("UploadedFile", on_delete=models.CASCADE)
+    file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
     
 class Function(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
@@ -31,3 +31,9 @@ class Disasm(models.Model):
     addr = models.CharField(max_length=64) 
     op = models.CharField(max_length=64)
     data = models.CharField(max_length=64)
+    
+class Task(models.Model):
+    file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, default=None, null=True, blank=True, on_delete=models.CASCADE)
+    status = models.CharField(max_length=16)
+

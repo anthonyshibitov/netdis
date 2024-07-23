@@ -1,12 +1,15 @@
 # Celery tasks
-from .models import UploadedFile, Project, Function, Block, Disasm
+from .models import Task, UploadedFile, Project, Function, Block, Disasm
 import angr
 from celery import shared_task
 
 @shared_task()
-def analyze_file_task(file_id):
+def analyze_file_task(file_id, task_id):
     file = UploadedFile.objects.get(pk=file_id)
-    print(f"FILE: {file.file.name}")
+    print(f"Getting task... from id ${task_id}")
+    task = Task.objects.get(pk=task_id)
+    task.status = "ACTIVE"
+    task.save()
     print("In celery task")
     # Check if Project object already exists with this hash
     if(Project.objects.filter(file=file)).exists():
@@ -39,3 +42,7 @@ def analyze_file_task(file_id):
                 disasm_obj.save()   
                 
     print("Analysis done, async!")
+    task.status = "DONE"
+    task.project = proj_obj
+    task.save()
+    file.delete()

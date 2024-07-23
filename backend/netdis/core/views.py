@@ -4,7 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import UploadedFile, Project, Function, Block, Disasm
+from .models import Task, UploadedFile, Project, Function, Block, Disasm
 import hashlib
 import json
 import networkx as nx
@@ -12,6 +12,7 @@ from .utils import get_project_from_hash, get_functions_from_project, get_blocks
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
 from .tasks import analyze_file_task
+from .serializers import TaskSerializer
 
 @api_view(['GET'])
 def test_view(request):
@@ -31,6 +32,13 @@ def binary_ingest(request):
         # Uploaded file, and analysis already exists
         if UploadedFile.objects.filter(hash = hash).exists():
             uploaded_file = UploadedFile.objects.get(hash = hash)
+            # Eventually this will return project id based on user, until now, return random project ID
+            # They are all the same if they share the same hash
+            print("Loading project")
+            project = Project.objects.get(file = uploaded_file)
+            print("Loaded project")
+            print(project)
+            return Response({ "project_id": project.id })
         # Uploaded file does not exist. Upload, analyze, and delete it.
         else:
             uploaded_file = UploadedFile(file=file_obj, hash=hash)
@@ -38,23 +46,20 @@ def binary_ingest(request):
             
             # Synchronous
             print("Calling celery task...")
-            analyze_file_task.delay(uploaded_file.id)
-            #analyze_file(uploaded_file)
-            # DEAL WITH THIS vvvvv
-            #uploaded_file.delete()
+            task = Task(status = "QUEUED", file=uploaded_file, project=None)
+            task.save()
+            print(f"Task id {task.id}")
+            analyze_file_task.delay(uploaded_file.id, task.id)
+            serializer = TaskSerializer(task)
+            return Response(serializer.data)
  
-        # Return project ID for file
-        # DEAL WITH THIS vvvvv
-        #project = Project.objects.get(file = uploaded_file)            
-        # DEAL WITH THIS vvvvv
-        #response = {"hash": hash, "project_id":project.id}
-        return Response(hash)
     return Response("Bad request!", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def funcs(request):
     if(request.body):
         data_dict = json.loads(request.body.decode("utf-8"))
+        print(data_dict)
         try:
             project_id = data_dict['project_id']
         except Exception as error:
@@ -80,6 +85,16 @@ def disasms(request):
         block_id = data_dict['block_id']
         return Response(get_disasm_from_block(block_id))
     return Response('BAD')
+
+@api_view(['GET'])
+def task(request, id):
+    task = Task.objects.get(pk=id)
+    print(task)
+    serializer = TaskSerializer(task)
+    if(task.status == "DONE"):
+        task.delete()
+        task.save()
+    return Response(serializer.data)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

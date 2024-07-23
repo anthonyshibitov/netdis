@@ -18,3 +18,8 @@ class DisasmSerializer(serializers.Serializer):
     addr = serializers.CharField(max_length=64)
     op = serializers.CharField(max_length=64)
     data = serializers.CharField(max_length=64)
+    
+class TaskSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    status = serializers.CharField(max_length=16)
+    project_id = serializers.IntegerField()
