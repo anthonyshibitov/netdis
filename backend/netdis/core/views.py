@@ -40,7 +40,8 @@ def binary_ingest(request):
         # Return project ID for file
         project = Project.objects.get(file = uploaded_file)            
         # return Response(project.id)
-        return Response(hash)
+        response = {"hash": hash, "project_id":project.id}
+        return Response(response)
     return Response("Bad request!", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])

@@ -2,6 +2,7 @@ import './HomePage.css';
 import NavBar from '../components/NavBar';
 
 export default function HomePage() {
+    console.log(import.meta.env.VITE_BACKEND);
     return (
         <div className="main-container">
             <NavBar />

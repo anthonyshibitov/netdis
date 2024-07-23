@@ -1,0 +1,27 @@
+.function-list {
+
+}
+
+.component-wrapper {
+    border: 1px solid #5b92e5;
+    width: fit-content;
+}
+
+.component-title {
+    font-weight: bold;
+    padding: 0.5rem;
+}
+
+.component-body {
+    padding: 0.5rem;
+}
+
+.function-item {
+    color: #2a2b2a;
+}
+
+.function-item:hover {
+    color: white;
+    cursor: pointer;
+    background-color: #5b92e5;
+}
