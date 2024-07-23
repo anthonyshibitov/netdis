@@ -31,7 +31,7 @@ export default function FunctionList(props) {
             <div className="component-title">Functions</div>
             <div className="component-body">
                 {funcs.map(f => {
-                return (<div key={f.id} className="function-item" onClick={() => onFunctionClick(f.id)}>{f.name}</div>)
+                return (<div key={f.id} className={"function-item " + (analysisContext.selected_function == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>{f.name}</div>)
                 })}
             </div>
             selected function is {analysisContext.selected_function}

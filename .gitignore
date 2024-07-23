@@ -6,4 +6,5 @@ db.sqlite3
 *.pot
 *.pyc
 npm_modules/
+dump.rdb
 .env

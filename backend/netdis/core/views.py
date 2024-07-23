@@ -11,6 +11,7 @@ import networkx as nx
 from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block, analyze_file
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
+from .tasks import analyze_file_task
 
 @api_view(['GET'])
 def test_view(request):
@@ -34,14 +35,20 @@ def binary_ingest(request):
         else:
             uploaded_file = UploadedFile(file=file_obj, hash=hash)
             uploaded_file.save()
-            analyze_file(uploaded_file)
-            uploaded_file.delete()
+            
+            # Synchronous
+            print("Calling celery task...")
+            analyze_file_task.delay(uploaded_file.id)
+            #analyze_file(uploaded_file)
+            # DEAL WITH THIS vvvvv
+            #uploaded_file.delete()
  
         # Return project ID for file
-        project = Project.objects.get(file = uploaded_file)            
-        # return Response(project.id)
-        response = {"hash": hash, "project_id":project.id}
-        return Response(response)
+        # DEAL WITH THIS vvvvv
+        #project = Project.objects.get(file = uploaded_file)            
+        # DEAL WITH THIS vvvvv
+        #response = {"hash": hash, "project_id":project.id}
+        return Response(hash)
     return Response("Bad request!", status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])

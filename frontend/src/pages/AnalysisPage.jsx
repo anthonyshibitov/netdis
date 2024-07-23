@@ -6,9 +6,6 @@ import { useState } from "react";
 
 export default function AnalysisPage() {
     const { state } = useLocation();
-    console.log("Function analysis results:");
-    console.log(state);
-
     const [analysisContext, setAnalysisContext] = useState({"selected_function": null});
 
     return (

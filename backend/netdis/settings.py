@@ -65,6 +65,9 @@ CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173'
 ]
 
+CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_RESULT_BACKEND = "redis://localhost:6379"
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
