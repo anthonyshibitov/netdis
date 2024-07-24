@@ -14,6 +14,8 @@
 
 .component-body {
     padding: 0.5rem;
+    overflow-y: scroll;
+    max-height: 50vh;
 }
 
 .function-item {
@@ -30,3 +32,14 @@
     color: white;
     background-color: #5b92e5;
 }
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 0.5rem;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #2a2b2a;
+    box-shadow: 0 0 1px rgba(255, 255, 255, .5);
+  }

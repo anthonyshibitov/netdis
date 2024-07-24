@@ -29,7 +29,7 @@ export default function FunctionList(props) {
     return (
         <div className="function-list component-wrapper">
             <div className="component-title">Functions</div>
-            <div className="component-body">
+            <div className="component-body function-list-body">
                 {funcs.map(f => {
                 return (<div key={f.id} className={"function-item " + (analysisContext.selected_function == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>{f.name}</div>)
                 })}

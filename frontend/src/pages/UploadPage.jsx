@@ -27,6 +27,7 @@ export default function UploadPage() {
         let state;
         setStatus("Uploading...");
         axios.post(url, formData, config).then((response => {
+            /* If project_id is null, it is still processing/queued! */
             if(response.data.project_id != null){
                 const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
                 axios.post(url, {"project_id": response.data.project_id}).then(response => {

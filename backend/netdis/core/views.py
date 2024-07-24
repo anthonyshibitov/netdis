@@ -7,7 +7,6 @@ from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm
 import hashlib
 import json
-import networkx as nx
 from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block, analyze_file
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
@@ -44,8 +43,7 @@ def binary_ingest(request):
             uploaded_file = UploadedFile(file=file_obj, hash=hash)
             uploaded_file.save()
             
-            # Synchronous
-            print("Calling celery task...")
+            print("Queueing worker...")
             task = Task(status = "QUEUED", file=uploaded_file, project=None)
             task.save()
             print(f"Task id {task.id}")
@@ -65,7 +63,7 @@ def funcs(request):
         except Exception as error:
             return Response(f"ERROR: {error.__str__()}")
         return Response(get_functions_from_project(project_id))
-    return Response('BAD')
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def blocks(request):
@@ -76,7 +74,7 @@ def blocks(request):
             return Response(error)
         function_id = data_dict['function_id']
         return Response(get_blocks_from_function(function_id))
-    return Response('BAD')
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def disasms(request):
@@ -84,16 +82,19 @@ def disasms(request):
         data_dict = json.loads(request.body.decode("utf-8"))
         block_id = data_dict['block_id']
         return Response(get_disasm_from_block(block_id))
-    return Response('BAD')
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 def task(request, id):
     task = Task.objects.get(pk=id)
-    print(task)
+    print("task.id")
+    print(task.id)
+    print("task_id passed")
+    print(id)
     serializer = TaskSerializer(task)
     if(task.status == "DONE"):
         task.delete()
-        task.save()
+        #task.save()
     return Response(serializer.data)
 
 @api_view(['GET'])
