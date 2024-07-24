@@ -7,7 +7,6 @@ export default function Listing() {
     const [analysisContext, setAnalysisContext] = useContext(AnalysisContext);
     const [f, setF] = useState("No function selected");
     const [blocks, setBlocks] = useState([]);
-    const [disasm, setDisasm] = useState([]);
 
     useEffect(() => {
         if (analysisContext.selected_function != null) {
@@ -15,22 +14,33 @@ export default function Listing() {
 
             const url = import.meta.env.VITE_BACKEND + 'api/blocks/';
             axios.post(url, { "function_id": analysisContext.selected_function }).then(response => {
-                setBlocks(response.data);
-                const blocks = response.data;
+                const fetchedBlocks = response.data;
 
-                const disasmPromises = blocks.map(block => {
+                const disasmPromises = fetchedBlocks.map(block => {
                     const disasmUrl = import.meta.env.VITE_BACKEND + 'api/disasms/';
                     return axios.post(disasmUrl, { "block_id": block.id }).then(disasmResponse => {
-                        return disasmResponse.data.map(d => `${d.addr}: ${d.op} ${d.data}`);
+                        return {
+                            blockId: block.id,
+                            disassembly: disasmResponse.data
+                        };
                     }).catch(error => {
                         console.log("Error fetching disasms:", error);
+                        return {
+                            blockId: block.id,
+                            disassembly: []
+                        };
                     });
                 });
 
                 Promise.all(disasmPromises).then(disasmResults => {
-                    // Flatten the array of arrays
-                    const allDisasms = disasmResults.flat();
-                    setDisasm(allDisasms);
+                    const blocksWithDisasm = fetchedBlocks.map(block => {
+                        const disasmForBlock = disasmResults.find(disasm => disasm.blockId === block.id);
+                        return {
+                            ...block,
+                            disassembly: disasmForBlock ? disasmForBlock.disassembly : []
+                        };
+                    });
+                    setBlocks(blocksWithDisasm);
                 });
             }).catch(error => {
                 console.error("Error fetching blocks:", error);
@@ -41,13 +51,14 @@ export default function Listing() {
     return (
         <div className="listing-container">
             {blocks.map((block, key) => (
-                <div key={key}>
-                    LABEL {block.addr}
-                </div>
-            ))}
-            {disasm.map((disasmItem, dkey) => (
-                <div key={dkey}>
-                    {disasmItem}
+                <div key={key} className="listing-label">
+                    &emsp;&emsp;&emsp;LABEL {block.addr}
+                    {block.disassembly.map((d, dkey) => (
+                        <div key={dkey}>
+                            <span className="listing-addr">{d.addr}</span>: 
+                            {d.op} <span className="listing-instruction">{d.data}</span>
+                        </div>
+                    ))}
                 </div>
             ))}
         </div>

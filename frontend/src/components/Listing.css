@@ -1,4 +1,17 @@
 .listing-container {
     display: flex;
     flex-direction: column;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.listing-label {
+    color: blue;
+}
+
+.listing-addr {
+    color: darkblue;
+}
+
+.listing-instruction {
+    color: darkred;
 }

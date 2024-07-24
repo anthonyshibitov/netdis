@@ -15,7 +15,9 @@
 .component-body {
     padding: 0.5rem;
     overflow-y: scroll;
+    overflow-x: auto;
     max-height: 50vh;
+    max-width: 25vw;
 }
 
 .function-item {
@@ -36,6 +38,7 @@
 ::-webkit-scrollbar {
     -webkit-appearance: none;
     width: 0.5rem;
+    height: 0.5rem;
   }
   
   ::-webkit-scrollbar-thumb {
