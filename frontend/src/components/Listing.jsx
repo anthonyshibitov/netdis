@@ -8,6 +8,59 @@ export default function Listing() {
     const [f, setF] = useState("No function selected");
     const [blocks, setBlocks] = useState([]);
 
+    function addressClick(address){
+        const regex = /^[0-9A-Fa-f]+h$/;
+        if(address.match(regex)){
+            const numFunctions = analysisContext.all_functions.length;
+            const trimmedAddress = address.replace(/h$/, '');
+            for(let i = 0; i < numFunctions; i++ ){
+                let currentFuncAddr = analysisContext.all_functions[i].addr;
+                currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
+                if(currentFuncAddr == trimmedAddress){
+                    //setAnalysisContext({...analysisContext, selected_function: analysisContext.all_functions[i].id})
+                    if(analysisContext.func_history){
+                        const newFuncHistory = [...analysisContext.func_history, analysisContext.all_functions[i].id]
+                        setAnalysisContext({...analysisContext, func_history: newFuncHistory, selected_function: analysisContext.all_functions[i].id})
+                    } else {
+                        setAnalysisContext({...analysisContext, func_history: [id], selected_function: analysisContext.all_functions[i].id})
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    function internalFuncRec(address){
+        const regex = /^[0-9A-Fa-f]+h$/;
+        if(address.match(regex)){
+            const numFunctions = analysisContext.all_functions.length;
+            const trimmedAddress = address.replace(/h$/, '');
+            for(let i = 0; i < numFunctions; i++ ){
+                let currentFuncAddr = analysisContext.all_functions[i].addr;
+                currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
+                if(currentFuncAddr == trimmedAddress){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    function addressHover(address){
+        const regex = /^[0-9A-Fa-f]+h$/;
+        if(address.match(regex)){
+            const numFunctions = analysisContext.all_functions.length;
+            const trimmedAddress = address.replace(/h$/, '');
+            for(let i = 0; i < numFunctions; i++ ){
+                let currentFuncAddr = analysisContext.all_functions[i].addr;
+                currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
+                if(currentFuncAddr == trimmedAddress){
+                    break;
+                }
+            }
+        }
+    }
+
     useEffect(() => {
         if (analysisContext.selected_function != null) {
             setF(`Selected function: ${analysisContext.selected_function}`);
@@ -49,18 +102,28 @@ export default function Listing() {
     }, [analysisContext]);
 
     return (
-        <div className="listing-container">
-            {blocks.map((block, key) => (
-                <div key={key} className="listing-label">
-                    &emsp;&emsp;&emsp;LABEL {block.addr}
-                    {block.disassembly.map((d, dkey) => (
-                        <div key={dkey}>
-                            <span className="listing-addr">{d.addr}</span>: 
-                            {d.op} <span className="listing-instruction">{d.data}</span>
-                        </div>
-                    ))}
-                </div>
-            ))}
+        <div className="component-wrapper">
+            <div className="component-title">Disassembly</div>
+            <div className="component-body listing-container">
+                {blocks.map((block, key) => (
+                    <div key={key} className="listing-label">
+                        &emsp;&emsp;&emsp;LABEL {block.addr}
+                        {block.disassembly.map((d, dkey) => (
+                            <div key={dkey}>
+                                <span className="listing-addr">
+                                    {d.addr}
+                                </span>: 
+                                <span className="listing-op">
+                                    {d.op}&nbsp;
+                                </span>
+                                <span onClick={() => addressClick(d.data)} onMouseEnter={() => addressHover(d.data)} className="listing-instruction">
+                                    {d.data} <span className="xref">{internalFuncRec(d.data) ? '[XREF]' : ''}</span>
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }

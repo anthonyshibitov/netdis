@@ -2,9 +2,15 @@
     display: flex;
     flex-direction: column;
     font-family: 'Courier New', Courier, monospace;
+    width: 60vw;
+    padding-left: 3rem;
 }
 
 .listing-label {
+    color: black;
+}
+
+.listing-op {
     color: blue;
 }
 
@@ -14,4 +20,13 @@
 
 .listing-instruction {
     color: darkred;
+    cursor: pointer;
+}
+
+.listing-instruction:hover {
+    background-color: yellow;
+}
+
+.xref {
+    color: grey;
 }

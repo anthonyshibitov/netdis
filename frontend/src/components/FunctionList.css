@@ -1,5 +1,5 @@
 .function-list {
-
+    width: 20vw;
 }
 
 .component-wrapper {
@@ -9,19 +9,19 @@
 
 .component-title {
     font-weight: bold;
-    padding: 0.5rem;
+    padding: 0.3rem;
+    border-bottom: 1px solid #5b92e5;
 }
 
 .component-body {
     padding: 0.5rem;
     overflow-y: scroll;
-    overflow-x: auto;
     max-height: 50vh;
-    max-width: 25vw;
 }
 
 .function-item {
     color: #2a2b2a;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 .function-item:hover {
