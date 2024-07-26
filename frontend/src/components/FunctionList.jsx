@@ -30,7 +30,6 @@ export default function FunctionList(props) {
     function onBackClick(){
         if(analysisContext.func_history.length > 1){
             const funcHistory = analysisContext.func_history.slice(0, -1);
-            console.log("removed last", funcHistory);
             setAnalysisContext({...analysisContext, selected_function: funcHistory[funcHistory.length - 1], func_history: funcHistory})
         }
     }
@@ -48,7 +47,7 @@ export default function FunctionList(props) {
     return (
         <div className="function-list component-wrapper">
             <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
-            <div className="component-body function-list-body">
+            <div className="component-body">
                 {funcs.map((f,index) => {
                 return (
                     <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selected_function == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>

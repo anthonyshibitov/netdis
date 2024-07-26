@@ -2,8 +2,11 @@
 from .models import Task, UploadedFile, Project, Function, Block, Disasm
 import angr
 from celery import shared_task
+import networkx as nx
+from .utils import timer
 
 @shared_task()
+@timer
 def analyze_file_task(file_id, task_id):
     file = UploadedFile.objects.get(pk=file_id)
     print(f"Getting task... ID {task_id}")
@@ -43,3 +46,33 @@ def analyze_file_task(file_id, task_id):
     task.project = proj_obj
     task.save()
     file.delete()
+    
+    print("Calling func traversal")
+    for func in cfg.kb.functions.values():
+        traversal = FunctionTraversal()
+        traversal.traverse(cfg.get_node(func.addr))  
+        #print(func.name)
+        #print(traversal.get_graph()) 
+        
+    
+    
+    
+class FunctionTraversal:
+    def __init__(self):
+        self.visited = []
+        self.edges = []
+        self.graph = nx.DiGraph()
+        
+    def get_graph(self):
+        return self.graph
+    
+    def traverse(self, node):
+        self.graph.add_node(node, label=node.name)
+        self.visited.append(node)
+        successors = node.successors
+        if(successors != []):
+            for successor in successors:
+                self.edges.append((node, successor))
+                self.graph.add_edge(node, successor)
+                if successor not in self.visited:
+                    self.traverse(successor)

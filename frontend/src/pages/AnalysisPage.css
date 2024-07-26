@@ -1,11 +1,12 @@
 .analysis-container {
     display: flex;
+    flex-direction: row;
     gap: 1rem;
 }
 
 .component-wrapper {
     border: 1px solid #5b92e5;
-    width: fit-content;
+    /* width: fit-content; */
 }
 
 .component-title {

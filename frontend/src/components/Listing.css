@@ -2,13 +2,10 @@
     display: flex;
     flex-direction: column;
     font-family: 'Courier New', Courier, monospace;
-    /* width: 100vw; */
     padding-left: 3rem;
-    grid-template-columns: 1fr 1fr 1fr 5fr;
 }
 
 .listing-wrapper {
-    flex-grow: 1;
 }
 
 .listing-block {

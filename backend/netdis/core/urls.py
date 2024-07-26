@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import test_view, binary_ingest, probe, funcs, blocks, disasms, task
+from .views import test_view, binary_ingest, probe, funcs, blocks, disasms, task, func_graph
 
 urlpatterns = [
     path('test/', test_view, name='test'),
@@ -11,6 +11,8 @@ urlpatterns = [
     path('disasms/', disasms, name='disasms'),
     
     path('task/<int:id>', task, name='task'),
+    
+    path('func_graph/', func_graph, name='func_graph'),
     
     path('proj/', test_view, name='proj'),
     path('func/', test_view, name='func'),

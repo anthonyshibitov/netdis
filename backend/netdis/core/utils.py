@@ -3,6 +3,7 @@ from functools import wraps
 from .serializers import FunctionSerializer, BlockSerializer, DisasmSerializer
 import time
 import angr
+import networkx as nx
 
 def get_project_from_hash(hash):
     if UploadedFile.objects.filter(hash = hash).exists():
@@ -58,7 +59,38 @@ def analyze_file(file):
             block_obj.save()
             for insn in cb.insns:
                 disasm_obj = Disasm(block = block_obj, op = insn.mnemonic, data = insn.op_str, addr = hex(insn.address))
-                disasm_obj.save()            
+                disasm_obj.save()    
+    
+    for func in cfg.kb.functions.values():
+        traversal = FunctionTraversal()
+        traversal.traverse(func.addr)    
+    
+class FunctionTraversal:
+    def __init__(self):
+        self.visited = []
+        self.edges = []
+        self.graph = nx.DiGraph()
+        
+    def get_graph(self):
+        return self.graph
+    
+    def traverse(self, node):
+        self.graph.add_node(node, label=node.name)
+        self.visited.append(node)
+        successors = node.successors
+        print("\n")
+        print("NODE:", node)
+        if(successors != []):
+            print("SUCCESSORS:", successors)
+            for successor in successors:
+                self.edges.append((node, successor))
+                self.graph.add_edge(node, successor)
+                if successor in self.visited:
+                    print(node, "LOOPS BACK TO", successor)
+                else:
+                    self.traverse(successor)
+        else:
+            print("*** END", node, "NO SUCCESSORS, LEAF NODE!")
 
 def timer(func):
     """helper function to estimate view execution time"""

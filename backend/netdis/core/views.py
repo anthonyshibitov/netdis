@@ -87,14 +87,9 @@ def disasms(request):
 @api_view(['GET'])
 def task(request, id):
     task = Task.objects.get(pk=id)
-    print("task.id")
-    print(task.id)
-    print("task_id passed")
-    print(id)
     serializer = TaskSerializer(task)
     if(task.status == "DONE"):
         task.delete()
-        #task.save()
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -103,14 +98,6 @@ def probe(request):
     print(request.user.id)
     return Response(request.user.id)
 
-def test_cfg_func(request):
+@api_view(['GET'])
+def func_graph(request):
     pass
-    # cfg = proj.analyses.CFGFast()
-    
-    # graph = nx.DiGraph()
-    # dis_list = list()
-    # for node in cfg.graph.nodes():
-    #     graph.add_node(node)
-
-    # for edge in cfg.graph.edges():
-    #     graph.add_edge(edge[0], edge[1])
