@@ -5,7 +5,6 @@ import { AnalysisContext } from "../context/AnalysisContext";
 
 
 export default function FunctionList(props) {
-    const [func, setFunc] = useState([]);
     const funcs = props.funcs;
     const [dis, setDis] = useState([]);
     const [analysisContext, setAnalysisContext] = useContext(AnalysisContext);
@@ -24,6 +23,7 @@ export default function FunctionList(props) {
             if (index !== -1 && scrollRefs.current[index]) {
                 scrollRefs.current[index].scrollIntoView({ behavior: 'smooth'});
             }
+            setAnalysisContext({...analysisContext, func_banner: `${funcs[index].name}`})
         }
     }, [analysisContext.selected_function]);
 
@@ -44,23 +44,10 @@ export default function FunctionList(props) {
         } else {
             setAnalysisContext({...analysisContext, func_history: [id], selected_function: id})
         }
-        let resps = [];
-        const url = import.meta.env.VITE_BACKEND + "api/blocks/";
-
-        try {
-            const response = await axios.post(url, { "function_id": id });
-            const array = response.data.map(block => ({
-                "addr": block.addr,
-                "id": block.id
-            }));
-            setFunc(array);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
     }
     return (
         <div className="function-list component-wrapper">
-            <div className="component-title">Functions <span onClick={onBackClick}>[back]</span></div>
+            <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
             <div className="component-body function-list-body">
                 {funcs.map((f,index) => {
                 return (

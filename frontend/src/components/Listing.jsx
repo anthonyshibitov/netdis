@@ -8,29 +8,23 @@ export default function Listing() {
     const [f, setF] = useState("No function selected");
     const [blocks, setBlocks] = useState([]);
 
+    useEffect(() => {
+
+    }, [])
+
     function addressClick(address){
-        const regex = /^[0-9A-Fa-f]+h$/;
-        if(address.match(regex)){
-            const numFunctions = analysisContext.all_functions.length;
-            const trimmedAddress = address.replace(/h$/, '');
-            for(let i = 0; i < numFunctions; i++ ){
-                let currentFuncAddr = analysisContext.all_functions[i].addr;
-                currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
-                if(currentFuncAddr == trimmedAddress){
-                    //setAnalysisContext({...analysisContext, selected_function: analysisContext.all_functions[i].id})
-                    if(analysisContext.func_history){
-                        const newFuncHistory = [...analysisContext.func_history, analysisContext.all_functions[i].id]
-                        setAnalysisContext({...analysisContext, func_history: newFuncHistory, selected_function: analysisContext.all_functions[i].id})
-                    } else {
-                        setAnalysisContext({...analysisContext, func_history: [id], selected_function: analysisContext.all_functions[i].id})
-                    }
-                    break;
-                }
+        const i = internalFuncRef(address).index;
+        if(i != false){
+            if(analysisContext.func_history){
+                const newFuncHistory = [...analysisContext.func_history, analysisContext.all_functions[i].id]
+                setAnalysisContext({...analysisContext, func_history: newFuncHistory, selected_function: analysisContext.all_functions[i].id})
+            } else {
+                setAnalysisContext({...analysisContext, func_history: [id], selected_function: analysisContext.all_functions[i].id})
             }
         }
     }
 
-    function internalFuncRec(address){
+    function internalFuncRef(address){
         const regex = /^[0-9A-Fa-f]+h$/;
         if(address.match(regex)){
             const numFunctions = analysisContext.all_functions.length;
@@ -39,27 +33,27 @@ export default function Listing() {
                 let currentFuncAddr = analysisContext.all_functions[i].addr;
                 currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
                 if(currentFuncAddr == trimmedAddress){
-                    return true;
+                    return {index: i, name: analysisContext.all_functions[i].name};
                 }
             }
         }
         return false;
     }
 
-    function addressHover(address){
-        const regex = /^[0-9A-Fa-f]+h$/;
-        if(address.match(regex)){
-            const numFunctions = analysisContext.all_functions.length;
-            const trimmedAddress = address.replace(/h$/, '');
-            for(let i = 0; i < numFunctions; i++ ){
-                let currentFuncAddr = analysisContext.all_functions[i].addr;
-                currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
-                if(currentFuncAddr == trimmedAddress){
-                    break;
-                }
-            }
-        }
-    }
+    // function addressHover(address){
+    //     const regex = /^[0-9A-Fa-f]+h$/;
+    //     if(address.match(regex)){
+    //         const numFunctions = analysisContext.all_functions.length;
+    //         const trimmedAddress = address.replace(/h$/, '');
+    //         for(let i = 0; i < numFunctions; i++ ){
+    //             let currentFuncAddr = analysisContext.all_functions[i].addr;
+    //             currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
+    //             if(currentFuncAddr == trimmedAddress){
+    //                 break;
+    //             }
+    //         }
+    //     }
+    // }
 
     useEffect(() => {
         if (analysisContext.selected_function != null) {
@@ -103,7 +97,7 @@ export default function Listing() {
 
     return (
         <div className="component-wrapper">
-            <div className="component-title">Disassembly</div>
+            <div className="component-title">Disassembly: {analysisContext.func_banner}</div>
             <div className="component-body listing-container">
                 {blocks.map((block, key) => (
                     <div key={key} className="listing-label">
@@ -116,8 +110,8 @@ export default function Listing() {
                                 <span className="listing-op">
                                     {d.op}&nbsp;
                                 </span>
-                                <span onClick={() => addressClick(d.data)} onMouseEnter={() => addressHover(d.data)} className="listing-instruction">
-                                    {d.data} <span className="xref">{internalFuncRec(d.data) ? '[XREF]' : ''}</span>
+                                <span onClick={() => addressClick(d.data)} className="listing-instruction">
+                                    {d.data} <span className="xref">{internalFuncRef(d.data) ? `[XREF=>${internalFuncRef(d.data).name}]` : ''}</span>
                                 </span>
                             </div>
                         ))}

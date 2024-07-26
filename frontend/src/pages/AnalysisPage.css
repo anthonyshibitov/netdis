@@ -2,3 +2,22 @@
     display: flex;
     gap: 1rem;
 }
+
+.component-wrapper {
+    border: 1px solid #5b92e5;
+    /* width: fit-content; */
+}
+
+.component-title {
+    font-weight: bold;
+    padding: 0.3rem;
+    border-bottom: 1px solid #5b92e5;
+    display: flex;
+    gap: 1rem;
+}
+
+.component-body {
+    padding: 0.5rem;
+    overflow-y: scroll;
+    max-height: 50vh;
+}
