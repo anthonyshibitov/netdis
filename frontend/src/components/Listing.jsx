@@ -96,23 +96,24 @@ export default function Listing() {
     }, [analysisContext]);
 
     return (
-        <div className="component-wrapper">
+        <div className="component-wrapper listing-wrapper">
             <div className="component-title">Disassembly: {analysisContext.func_banner}</div>
             <div className="component-body listing-container">
                 {blocks.map((block, key) => (
-                    <div key={key} className="listing-label">
-                        &emsp;&emsp;&emsp;LABEL {block.addr}
+                    <div key={key} className="listing-block">
+                        <div className="listing-label">LABEL {block.addr}</div>
                         {block.disassembly.map((d, dkey) => (
-                            <div key={dkey}>
+                            <div className="listing-line" key={dkey}>
                                 <span className="listing-addr">
-                                    {d.addr}
-                                </span>: 
+                                    {d.addr}:
+                                </span>
                                 <span className="listing-op">
                                     {d.op}&nbsp;
                                 </span>
                                 <span onClick={() => addressClick(d.data)} className="listing-instruction">
-                                    {d.data} <span className="xref">{internalFuncRef(d.data) ? `[XREF=>${internalFuncRef(d.data).name}]` : ''}</span>
+                                    {d.data}
                                 </span>
+                                <span className="xref">{internalFuncRef(d.data) ? `[XREF=>${internalFuncRef(d.data).name}]` : ''}</span>
                             </div>
                         ))}
                     </div>

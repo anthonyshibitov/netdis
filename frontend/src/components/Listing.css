@@ -2,12 +2,27 @@
     display: flex;
     flex-direction: column;
     font-family: 'Courier New', Courier, monospace;
-    width: 60vw;
+    /* width: 100vw; */
     padding-left: 3rem;
+    grid-template-columns: 1fr 1fr 1fr 5fr;
+}
+
+.listing-wrapper {
+    flex-grow: 1;
+}
+
+.listing-block {
+
+}
+
+.listing-line {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
 }
 
 .listing-label {
     color: black;
+    grid-column: span 3;
 }
 
 .listing-op {
@@ -16,11 +31,13 @@
 
 .listing-addr {
     color: darkblue;
+    grid-column-start: 2;
 }
 
 .listing-instruction {
     color: darkred;
     cursor: pointer;
+    grid-column: span 3;
 }
 
 .listing-instruction:hover {
@@ -29,4 +46,6 @@
 
 .xref {
     color: grey;
+    max-width: 100%;
+    grid-column: span 2;
 }
