@@ -10,7 +10,7 @@ import json
 from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
-from .tasks import analyze_file_task
+from .tasks import analyze_file_task, ghidra_analyze
 from .serializers import TaskSerializer
 
 @api_view(['GET'])
@@ -47,7 +47,7 @@ def binary_ingest(request):
             task = Task(status = "QUEUED", file=uploaded_file, project=None)
             task.save()
             print(f"Task id {task.id}")
-            analyze_file_task.delay(uploaded_file.id, task.id)
+            ghidra_analyze.delay(uploaded_file.id, task.id)
             serializer = TaskSerializer(task)
             return Response(serializer.data)
  
