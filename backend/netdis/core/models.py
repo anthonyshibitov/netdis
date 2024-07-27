@@ -36,4 +36,3 @@ class Task(models.Model):
     file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, default=None, null=True, blank=True, on_delete=models.CASCADE)
     status = models.CharField(max_length=16)
-

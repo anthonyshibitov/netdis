@@ -47,16 +47,12 @@ def analyze_file_task(file_id, task_id):
     task.save()
     file.delete()
     
-    print("Calling func traversal")
-    for func in cfg.kb.functions.values():
-        traversal = FunctionTraversal()
-        traversal.traverse(cfg.get_node(func.addr))  
-        #print(func.name)
-        #print(traversal.get_graph()) 
-        
+    entry_point = proj.entry
+    current_node = cfg.get_node(entry_point)
+    traversal = FunctionTraversal()
+    traversal.traverse(current_node)  
     
-    
-    
+
 class FunctionTraversal:
     def __init__(self):
         self.visited = []
@@ -70,6 +66,7 @@ class FunctionTraversal:
         self.graph.add_node(node, label=node.name)
         self.visited.append(node)
         successors = node.successors
+        #print("NODE:", node)
         if(successors != []):
             for successor in successors:
                 self.edges.append((node, successor))

@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm
 import hashlib
 import json
-from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block, analyze_file
+from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
 from .tasks import analyze_file_task
