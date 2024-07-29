@@ -96,12 +96,12 @@ def print_test(file_id, task_id):
     print("Project doesn't exist. Let's make one and analyze the file.")
     print(file.file.name)
     file_path = "./media/" + file.file.name
-    
-    full_disasm(file_path)
-    
+        
     proj_obj = Project(file = file)
     proj_obj.save()
     print(f"Project ID created: {proj_obj.id}")
+    
+    full_disasm(file_path, proj_obj)
     
     print("Worker analysis done!")
     task.status = "DONE"

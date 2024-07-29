@@ -2,4 +2,7 @@ django
 djangorestframework
 rzpipe
 angr
-capstone -> pip install --pre --no-binary capstone capstone
+
+NO LONGER NEEDED! -> capstone -> pip install --pre --no-binary capstone capstone
+
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES

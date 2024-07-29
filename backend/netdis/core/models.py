@@ -25,6 +25,7 @@ class Function(models.Model):
 class Block(models.Model):
     function = models.ForeignKey(Function, on_delete=models.CASCADE)
     addr = models.CharField(max_length=64)
+    
 
 class Disasm(models.Model):
     block = models.ForeignKey(Block, on_delete=models.CASCADE)   
