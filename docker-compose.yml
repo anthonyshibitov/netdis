@@ -1,0 +1,23 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    command: sh -c "npm install && npm run dev -- --host"
+    ports:
+    - "5173:5173"
+  backend:
+    build:
+      context: ./backend
+    # command: sh -c "python manage.py flush --no-input &&
+    #   python manage.py makemigrations &&
+    #   python manage.py migrate &&
+    #   python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+  redis:
+    image: "redis:alpine"
+    command: sh -c "redis-server"
+    ports:
+      - "6379:6379"

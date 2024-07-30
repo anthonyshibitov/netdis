@@ -2,7 +2,7 @@ import pyhidra
 import os
 from ..models import Task, UploadedFile, Project, Function, Block, Disasm
 
-os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
+#os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
 
 def function_call_graph(program):
  calls = {}

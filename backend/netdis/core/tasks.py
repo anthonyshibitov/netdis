@@ -1,8 +1,6 @@
 # Celery tasks
 from .models import Task, UploadedFile, Project, Function, Block, Disasm
-import angr
 from celery import shared_task
-import networkx as nx
 from .utils import timer
 import subprocess
 import os

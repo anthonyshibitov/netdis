@@ -2,8 +2,6 @@ from .models import UploadedFile, Project, Function, Block, Disasm
 from functools import wraps
 from .serializers import FunctionSerializer, BlockSerializer, DisasmSerializer
 import time
-import angr
-import networkx as nx
 
 def get_project_from_hash(hash):
     if UploadedFile.objects.filter(hash = hash).exists():
