@@ -76,6 +76,18 @@ def func_cfg(program, func_id):
                         dst_obj.save()
                         block_obj.dst.add(dst_obj)  
                     print(f"DST id {dst_obj.id} : {dst_obj.addr}")
+    
+            # Now return the json object!
+            blocks = Block.objects.filter(function=func).all()
+            nodes = [{"id": block.id} for block in blocks]
+            edges = []
+            for block in blocks:
+                for dst in block.dst.all():
+                    edges.append({"src": block.id, "dst": dst.id})
+                    
+            response = {"nodes": nodes, "edges": edges}
+            print(response)
+            return(response)
 
 def full_disasm(program, proj_obj):
     with pyhidra.open_program(program) as flat_api:

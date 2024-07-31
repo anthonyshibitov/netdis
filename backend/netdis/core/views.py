@@ -85,6 +85,14 @@ def disasms(request):
         return Response(get_disasm_from_block(block_id))
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def block_srcs(request):
+    pass
+
+@api_view(['POST'])
+def block_dsts(request):
+    pass
+
 @api_view(['GET'])
 def task(request, id):
     task = Task.objects.get(pk=id)
@@ -106,5 +114,5 @@ def func_graph(request):
         func_id = data_dict['function_id']
         file_id = data_dict['file_id']
         print("CALLING CFG")
-        func.delay(file_id, func_id)
-        return Response("YAY")
+        result = func.delay(file_id, func_id)
+        return Response(result)

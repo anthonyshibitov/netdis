@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import test_view, binary_ingest, probe, funcs, blocks, disasms, task, func_graph
+from .views import test_view, binary_ingest, probe, funcs, blocks, disasms, task, func_graph, block_dsts, block_srcs
 
 urlpatterns = [
     path('test/', test_view, name='test'),
