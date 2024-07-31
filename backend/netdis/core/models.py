@@ -19,11 +19,14 @@ class Function(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     addr = models.CharField(max_length=64)
     name = models.CharField(max_length=256)
+    cfg = models.BooleanField(default=False)
     def __str__(self):
         return self.name
 
 class Block(models.Model):
     function = models.ForeignKey(Function, on_delete=models.CASCADE)
+    src = models.ManyToManyField('self', related_name="src_blocks", symmetrical=False, blank=True)
+    dst = models.ManyToManyField('self', related_name="dst_blocks", symmetrical=False, blank=True)
     addr = models.CharField(max_length=64)
     
 

@@ -42,8 +42,11 @@ export default function UploadPage() {
                         console.log(response);
                         if(response.data.status == "DONE"){
                             clearInterval(timer);
+                            console.log("DONE API RESPONSE")
+                            console.log(response.data)
                             const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-                            axios.post(url, {"project_id": response.data.project_id}).then(response => {
+                            axios.post(url, {"project_id": response.data.project}).then(response => {
+                                console.log("File id:", response.data.file)
                                 navigate("/analysis", {state: response.data});
                             })
                         }

@@ -7,10 +7,10 @@ from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm
 import hashlib
 import json
-from .utils import get_project_from_hash, get_functions_from_project, get_blocks_from_function, get_disasm_from_block
+from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
-from .tasks import analyze_file_task, ghidra_analyze, print_test
+from .tasks import print_test, func
 from .serializers import TaskSerializer
 
 @api_view(['GET'])
@@ -99,6 +99,12 @@ def probe(request):
     print(request.user.id)
     return Response(request.user.id)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def func_graph(request):
-    pass
+    if(request.body):
+        data_dict = json.loads(request.body.decode("utf-8"))
+        func_id = data_dict['function_id']
+        file_id = data_dict['file_id']
+        print("CALLING CFG")
+        func.delay(file_id, func_id)
+        return Response("YAY")

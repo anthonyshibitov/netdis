@@ -1,25 +1,25 @@
 from rest_framework import serializers
-from .models import Function
+from .models import Function, UploadedFile, Project, Task, Block, Disasm
 
-class FunctionSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    project_id = serializers.IntegerField()
-    addr = serializers.CharField(max_length=64)
-    name = serializers.CharField(max_length=256)
+class FunctionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Function
+        fields = '__all__'
 
-class BlockSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    function_id = serializers.IntegerField()
-    addr = serializers.CharField(max_length=64)
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = '__all__'
+
+class DisasmSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Disasm
+        fields = '__all__'
+
+class TaskSerializer(serializers.ModelSerializer):
+    file = serializers.PrimaryKeyRelatedField(queryset=UploadedFile.objects.all())
+    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(), required=False, allow_null=True)
     
-class DisasmSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    block_id = serializers.IntegerField()
-    addr = serializers.CharField(max_length=64)
-    op = serializers.CharField(max_length=64)
-    data = serializers.CharField(max_length=64)
-    
-class TaskSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    status = serializers.CharField(max_length=16)
-    project_id = serializers.IntegerField()
+    class Meta:
+        model = Task
+        fields = '__all__'

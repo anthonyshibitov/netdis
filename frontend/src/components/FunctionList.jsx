@@ -44,15 +44,26 @@ export default function FunctionList(props) {
             setAnalysisContext({...analysisContext, func_history: [id], selected_function: id})
         }
     }
+
+    function cfg_req(func_id){
+        console.log("sending post");
+        const url = import.meta.env.VITE_BACKEND + 'api/func_graph/';
+        axios.post(url, { "file_id": "1", "function_id": func_id })
+        .then(response => {
+            console.log(response.data)
+        })
+    }
+
     return (
         <div className="function-list component-wrapper">
             <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
             <div className="component-body">
                 {funcs.map((f,index) => {
-                return (
+                return (<>
                     <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selected_function == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>
                         {f.addr}:{f.name}
                     </div>
+                    <button onClick={() => cfg_req(f.id)}>send cfg req</button></>
                 )
                 })}
             </div>
