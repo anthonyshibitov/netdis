@@ -16,10 +16,7 @@ class DisasmSerializer(serializers.ModelSerializer):
         model = Disasm
         fields = '__all__'
 
-class TaskSerializer(serializers.ModelSerializer):
-    file = serializers.PrimaryKeyRelatedField(queryset=UploadedFile.objects.all())
-    project = serializers.PrimaryKeyRelatedField(queryset=Project.objects.all(), required=False, allow_null=True)
-    
+class TaskSerializer(serializers.ModelSerializer):  
     class Meta:
         model = Task
         fields = '__all__'

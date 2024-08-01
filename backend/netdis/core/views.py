@@ -4,13 +4,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import Task, UploadedFile, Project, Function, Block, Disasm
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult
 import hashlib
 import json
 from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
-from .tasks import print_test, func
+from .tasks import primary_analysis, cfg_analysis
 from .serializers import TaskSerializer
 
 @api_view(['GET'])
@@ -31,9 +31,6 @@ def binary_ingest(request):
         # Uploaded file, and analysis already exists
         if UploadedFile.objects.filter(hash = hash).exists():
             uploaded_file = UploadedFile.objects.get(hash = hash)
-            # Eventually this will return project id based on user, until now, return random project ID
-            # They are all the same if they share the same hash
-            print("Loading project")
             project = Project.objects.get(file = uploaded_file)
             print("Loaded project")
             print(project)
@@ -44,11 +41,10 @@ def binary_ingest(request):
             uploaded_file.save()
             
             print("Queueing worker...")
-            task = Task(status = "QUEUED", file=uploaded_file, project=None)
+            task = Task(status = "QUEUED", task_type='file_upload')
             task.save()
             print(f"Task id {task.id}")
-            # ghidra_analyze.delay(uploaded_file.id, task.id)
-            print_test.delay(uploaded_file.id, task.id)
+            primary_analysis(uploaded_file.id, task.id)
             serializer = TaskSerializer(task)
             return Response(serializer.data)
  
@@ -96,10 +92,19 @@ def block_dsts(request):
 @api_view(['GET'])
 def task(request, id):
     task = Task.objects.get(pk=id)
+    
     serializer = TaskSerializer(task)
-    if(task.status == "DONE"):
-        task.delete()
-    return Response(serializer.data)
+    response = serializer.data
+    
+    if task.status == "DONE":
+        match task.task_type:
+            case 'file_upload':
+                result = FileUploadResult.objects.get(id=task.object_id)
+                response["result"] = {"project_id": result.project.id}
+            case 'cfg_analysis':
+                result = CFGAnalysisResult.objects.get(id=task.object_id)
+                response["result"] = {"json_result": result.json_result}
+    return Response(response)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -114,5 +119,12 @@ def func_graph(request):
         func_id = data_dict['function_id']
         file_id = data_dict['file_id']
         print("CALLING CFG")
-        result = func.delay(file_id, func_id)
-        return Response(result)
+        task = Task.objects.create(task_type='cfg_analysis')
+        task.save()
+        cfg_analysis(file_id, func_id, task.id)
+        return Response({"task_id": task.id, "status": task.status})
+    
+@api_view(['POST'])
+def proj_to_file(request):
+    if(request.body):
+        pass

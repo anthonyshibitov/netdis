@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from netdis import settings
 import os
 
@@ -37,6 +39,17 @@ class Disasm(models.Model):
     data = models.CharField(max_length=64)
     
 class Task(models.Model):
-    file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
-    project = models.ForeignKey(Project, default=None, null=True, blank=True, on_delete=models.CASCADE)
+    #file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
+    task_type = models.CharField(max_length=64, default="default")
+    #project = models.ForeignKey(Project, default=None, null=True, blank=True, on_delete=models.CASCADE)
     status = models.CharField(max_length=16)
+    
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    result = GenericForeignKey('content_type', 'object_id')
+    
+class FileUploadResult(models.Model):
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    
+class CFGAnalysisResult(models.Model):
+    json_result = models.JSONField()

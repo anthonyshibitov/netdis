@@ -4,6 +4,7 @@ import Listing from "../components/Listing.jsx";
 import { AnalysisContext } from "../context/AnalysisContext.js";
 import { useState } from "react";
 import './AnalysisPage.css'
+import Graph from "../components/Graph.jsx";
 
 export default function AnalysisPage() {
     const { state } = useLocation();
@@ -14,6 +15,7 @@ export default function AnalysisPage() {
             <div className="analysis-container">
                 <FunctionList funcs={state}/>
                 <Listing />
+                <Graph />
             </div>
         </AnalysisContext.Provider>
     )

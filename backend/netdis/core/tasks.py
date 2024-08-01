@@ -1,14 +1,13 @@
 # Celery tasks
-from .models import Task, UploadedFile, Project, Function, Block, Disasm
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult
 from celery import shared_task
 from .utils import timer
 import subprocess
 import os
-from .ghidra.tests import full_disasm, func_cfg
+from .ghidra.tests import ghidra_function_cfg, ghidra_full_disassembly
+from django.contrib.contenttypes.models import ContentType
 
-@shared_task()
-@timer
-def print_test(file_id, task_id):
+def primary_analysis(file_id, task_id):
     file = UploadedFile.objects.get(pk=file_id)
     print(f"Getting task... ID {task_id}")
     task = Task.objects.get(pk=task_id)
@@ -28,17 +27,39 @@ def print_test(file_id, task_id):
     proj_obj.save()
     print(f"Project ID created: {proj_obj.id}")
     
-    full_disasm(file_path, proj_obj)
+    ghidra_full_disassembly.apply_async(args=(file_path, proj_obj.id), link=primary_analysis_callback.s(task.id, proj_obj.id))
     
     print("Worker analysis done!")
-    task.status = "DONE"
-    task.project = proj_obj
-    task.save()
-    #file.delete()
-
+    
 @shared_task()
-@timer
-def func(file_id, func_id):
+def primary_analysis_callback(not_used, task_id, project_id):
+    project = Project.objects.get(pk=project_id)
+    result = FileUploadResult.objects.create(project=project)
+    result.save()
+    task = Task.objects.get(pk=task_id)
+    task.status = "DONE"
+    task.content_type = ContentType.objects.get_for_model(result)
+    task.object_id = result.id
+    task.result = result
+    task.save()
+    
+
+def cfg_analysis(file_id, func_id, task_id):
+    task = Task.objects.get(pk=task_id)
+    task.status = "ACTIVE"
+    task.save()
     file = UploadedFile.objects.get(pk=file_id)
     file_path = "./media/" + file.file.name
-    func_cfg(file_path, func_id)
+    ghidra_function_cfg.apply_async(args=(file_path, func_id), link=cfg_analysis_callback.s(task.id))
+
+    
+@shared_task()
+def cfg_analysis_callback(cfg_result, task_id):    
+    result = CFGAnalysisResult.objects.create(json_result=cfg_result)
+    result.save()
+    task = Task.objects.get(id=task_id)
+    task.status = "DONE"
+    task.content_type = ContentType.objects.get_for_model(result)
+    task.object_id = result.id
+    task.result = result
+    task.save()

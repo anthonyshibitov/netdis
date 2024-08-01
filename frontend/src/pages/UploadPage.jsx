@@ -40,13 +40,12 @@ export default function UploadPage() {
                     const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
                     const resp = axios.get(url).then((response => {
                         console.log(response);
-                        if(response.data.status == "DONE"){
+                        if(response.data.status == "DONE" && response.data.task_type == "file_upload"){
                             clearInterval(timer);
                             console.log("DONE API RESPONSE")
                             console.log(response.data)
                             const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-                            axios.post(url, {"project_id": response.data.project}).then(response => {
-                                console.log("File id:", response.data.file)
+                            axios.post(url, {"project_id": response.data.object_id}).then(response => {
                                 navigate("/analysis", {state: response.data});
                             })
                         }

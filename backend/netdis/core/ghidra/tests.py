@@ -1,6 +1,8 @@
 import pyhidra
 import os
-from ..models import Task, UploadedFile, Project, Function, Block, Disasm
+from ..models import Task, UploadedFile, Project, Function, Block, Disasm, CFGAnalysisResult, FileUploadResult
+from django.contrib.contenttypes.models import ContentType
+from celery import shared_task
 
 #os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
 
@@ -34,7 +36,8 @@ def function_call_graph(program):
 
 # My god..
 
-def func_cfg(program, func_id):
+@shared_task()
+def ghidra_function_cfg(program, func_id):
     with pyhidra.open_program(program) as flat_api:
         from ghidra.util.task import TaskMonitor
         import ghidra.program.model.block as blockmodel
@@ -85,11 +88,12 @@ def func_cfg(program, func_id):
                 for dst in block.dst.all():
                     edges.append({"src": block.id, "dst": dst.id})
                     
-            response = {"nodes": nodes, "edges": edges}
-            print(response)
-            return(response)
+            cfg_result = {"nodes": nodes, "edges": edges}
+    return cfg_result
 
-def full_disasm(program, proj_obj):
+
+@shared_task()
+def ghidra_full_disassembly(program, proj_obj_id):
     with pyhidra.open_program(program) as flat_api:
         from ghidra.util.task import TaskMonitor
         import ghidra.program.model.block as blockmodel
@@ -97,7 +101,8 @@ def full_disasm(program, proj_obj):
         currentProgram = flat_api.getCurrentProgram()
         funcs = currentProgram.getFunctionManager().getFunctions(True)
         for f in funcs:
-            function_obj = Function(project=proj_obj,name=f.getName(), addr=f.getEntryPoint())
+            project = Project.objects.get(pk = proj_obj_id)
+            function_obj = Function(project=project,name=f.getName(), addr=f.getEntryPoint())
             function_obj.save()
             code_block_model = blockmodel.BasicBlockModel(currentProgram)
             blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
