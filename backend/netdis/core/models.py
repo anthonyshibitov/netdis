@@ -4,7 +4,6 @@ from django.contrib.contenttypes.models import ContentType
 from netdis import settings
 import os
 
-# Create your models here.
 class UploadedFile(models.Model):
     file = models.FileField(upload_to="uploads/", max_length=300)
     hash = models.CharField(max_length=256)
@@ -39,9 +38,7 @@ class Disasm(models.Model):
     data = models.CharField(max_length=64)
     
 class Task(models.Model):
-    #file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
     task_type = models.CharField(max_length=64, default="default")
-    #project = models.ForeignKey(Project, default=None, null=True, blank=True, on_delete=models.CASCADE)
     status = models.CharField(max_length=16)
     
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)

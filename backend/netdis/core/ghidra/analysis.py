@@ -1,10 +1,10 @@
 import pyhidra
-import os
 from ..models import Task, UploadedFile, Project, Function, Block, Disasm, CFGAnalysisResult, FileUploadResult
 from django.contrib.contenttypes.models import ContentType
 from celery import shared_task
 
-#os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
+# This is for local dev
+# os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
 
 def function_call_graph(program):
  calls = {}
@@ -45,15 +45,8 @@ def ghidra_function_cfg(program, func_id):
         currentProgram = flat_api.getCurrentProgram()
         if Function.objects.get(id=func_id):
             func = Function.objects.get(id=func_id)
-            print(f"Looking for address {func.addr}")
             func_address = currentProgram.getAddressFactory().getAddress(func.addr)
-            print("Func address")
-            print(func_address)
             f = currentProgram.getFunctionManager().getFunctionAt(func_address)
-            print("f")
-            print(f)
-            print("f body")
-            print(f.body)
             code_block_model = blockmodel.BasicBlockModel(currentProgram)
             blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
             for block in blocks:
@@ -62,7 +55,7 @@ def ghidra_function_cfg(program, func_id):
                 else:
                     block_obj = Block(function = func, addr=block.minAddress)
                     block_obj.save()
-                print(f"BLOCK id {block_obj.id} : {block_obj.addr}")
+                #print(f"BLOCK id {block_obj.id} : {block_obj.addr}")
 
                 srcs = code_block_model.getSources(block, monitor)
                 dsts = code_block_model.getDestinations(block, monitor)
@@ -75,7 +68,7 @@ def ghidra_function_cfg(program, func_id):
                         src_obj = Block(function = func, addr=src.minAddress)
                         src_obj.save()
                         block_obj.src.add(src_obj)
-                    print(f"SRC id {src_obj.id} : {src_obj.addr}")
+                    #print(f"SRC id {src_obj.id} : {src_obj.addr}")
                 while dsts.hasNext():
                     dst = dsts.next().getDestinationBlock()
                     if Block.objects.filter(function=func, addr=dst.minAddress).exists():
@@ -85,7 +78,7 @@ def ghidra_function_cfg(program, func_id):
                         dst_obj = Block(function = func, addr=dst.minAddress)
                         dst_obj.save()
                         block_obj.dst.add(dst_obj)  
-                    print(f"DST id {dst_obj.id} : {dst_obj.addr}")
+                    #print(f"DST id {dst_obj.id} : {dst_obj.addr}")
     
             # Now return the json object!
             blocks = Block.objects.filter(function=func).all()
@@ -108,8 +101,6 @@ def ghidra_full_disassembly(program, proj_obj_id):
         currentProgram = flat_api.getCurrentProgram()
         funcs = currentProgram.getFunctionManager().getFunctions(True)
         for f in funcs:
-            print("f..")
-            print(f)
             project = Project.objects.get(pk = proj_obj_id)
             function_obj = Function(project=project,name=f.getName(), addr=f.getEntryPoint())
             function_obj.save()

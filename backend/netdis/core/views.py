@@ -81,14 +81,6 @@ def disasms(request):
         return Response(get_disasm_from_block(block_id))
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def block_srcs(request):
-    pass
-
-@api_view(['POST'])
-def block_dsts(request):
-    pass
-
 @api_view(['GET'])
 def task(request, id):
     task = Task.objects.get(pk=id)
@@ -123,8 +115,3 @@ def func_graph(request):
         task.save()
         cfg_analysis(file_id, func_id, task.id)
         return Response({"task_id": task.id, "status": task.status})
-    
-@api_view(['POST'])
-def proj_to_file(request):
-    if(request.body):
-        pass

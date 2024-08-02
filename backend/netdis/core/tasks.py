@@ -4,7 +4,7 @@ from celery import shared_task
 from .utils import timer
 import subprocess
 import os
-from .ghidra.tests import ghidra_function_cfg, ghidra_full_disassembly
+from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly
 from django.contrib.contenttypes.models import ContentType
 
 def primary_analysis(file_id, task_id):
@@ -26,9 +26,7 @@ def primary_analysis(file_id, task_id):
     proj_obj = Project(file = file)
     proj_obj.save()
     print(f"Project ID created: {proj_obj.id}")
-    
     ghidra_full_disassembly.apply_async(args=(file_path, proj_obj.id), link=primary_analysis_callback.s(task.id, proj_obj.id))
-    
     print("Worker analysis done!")
     
 @shared_task()

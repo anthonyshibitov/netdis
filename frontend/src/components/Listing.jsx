@@ -5,21 +5,17 @@ import './Listing.css'
 
 export default function Listing() {
     const [analysisContext, setAnalysisContext] = useContext(AnalysisContext);
-    const [f, setF] = useState("No function selected");
     const [blocks, setBlocks] = useState([]);
-
-    useEffect(() => {
-
-    }, [])
 
     function addressClick(address){
         const i = internalFuncRef(address).index;
+        console.log
         if(i != false){
-            if(analysisContext.func_history){
-                const newFuncHistory = [...analysisContext.func_history, analysisContext.all_functions[i].id]
-                setAnalysisContext({...analysisContext, func_history: newFuncHistory, selected_function: analysisContext.all_functions[i].id})
+            if(analysisContext.funcHistory){
+                const newFuncHistory = [...analysisContext.funcHistory, analysisContext.allFunctions[i].id]
+                setAnalysisContext({...analysisContext, funcHistory: newFuncHistory, selectedFunction: analysisContext.allFunctions[i].id})
             } else {
-                setAnalysisContext({...analysisContext, func_history: [id], selected_function: analysisContext.all_functions[i].id})
+                setAnalysisContext({...analysisContext, funcHistory: [id], selectedFunction: analysisContext.allFunctions[i].id})
             }
         }
     }
@@ -27,40 +23,23 @@ export default function Listing() {
     function internalFuncRef(address){
         const regex = /^[0-9A-Fa-f]+h$/;
         if(address.match(regex)){
-            const numFunctions = analysisContext.all_functions.length;
+            const numFunctions = analysisContext.allFunctions.length;
             const trimmedAddress = address.replace(/h$/, '');
             for(let i = 0; i < numFunctions; i++ ){
-                let currentFuncAddr = analysisContext.all_functions[i].addr;
+                let currentFuncAddr = analysisContext.allFunctions[i].addr;
                 currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
                 if(currentFuncAddr == trimmedAddress){
-                    return {index: i, name: analysisContext.all_functions[i].name};
+                    return {index: i, name: analysisContext.allFunctions[i].name};
                 }
             }
         }
         return false;
     }
 
-    // function addressHover(address){
-    //     const regex = /^[0-9A-Fa-f]+h$/;
-    //     if(address.match(regex)){
-    //         const numFunctions = analysisContext.all_functions.length;
-    //         const trimmedAddress = address.replace(/h$/, '');
-    //         for(let i = 0; i < numFunctions; i++ ){
-    //             let currentFuncAddr = analysisContext.all_functions[i].addr;
-    //             currentFuncAddr = currentFuncAddr.replace(/^0x/, '');
-    //             if(currentFuncAddr == trimmedAddress){
-    //                 break;
-    //             }
-    //         }
-    //     }
-    // }
-
     useEffect(() => {
-        if (analysisContext.selected_function != null) {
-            setF(`Selected function: ${analysisContext.selected_function}`);
-
+        if (analysisContext.selectedFunction != null) {
             const url = import.meta.env.VITE_BACKEND + 'api/blocks/';
-            axios.post(url, { "function_id": analysisContext.selected_function }).then(response => {
+            axios.post(url, { "function_id": analysisContext.selectedFunction }).then(response => {
                 const fetchedBlocks = response.data;
 
                 const disasmPromises = fetchedBlocks.map(block => {
@@ -93,11 +72,11 @@ export default function Listing() {
                 console.error("Error fetching blocks:", error);
             });
         }
-    }, [analysisContext]);
+    }, [analysisContext.selectedFunction]);
 
     return (
         <div className="component-wrapper listing-wrapper">
-            <div className="component-title">Disassembly: {analysisContext.func_banner}</div>
+            <div className="component-title">Disassembly: {analysisContext.funcBanner}</div>
             <div className="component-body listing-container">
                 {blocks.map((block, key) => (
                     <div key={key} className="listing-block">

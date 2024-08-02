@@ -15,8 +15,8 @@ const CodeNode = ({ data }) => {
                     <span className="codenode-op">{line.op} </span>
                     <div className="codenode-data">{line.data}</div>
                 </div>
-                )
-        })}</div>
+            )})}
+        </div>
         <Handle type="target" position="top" style={{ background: '#555' }} />
         <Handle type="source" position="bottom" style={{ background: '#555' }} />
         </div>

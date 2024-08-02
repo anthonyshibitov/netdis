@@ -5,44 +5,47 @@ import { AnalysisContext } from "../context/AnalysisContext";
 
 
 export default function FunctionList(props) {
-    const funcs = props.funcs.funcs;
-    const file_id = props.funcs.file_id;
+    const funcs = props.functionListProps.funcs;
+    const file_id = props.functionListProps.file_id;
     const [dis, setDis] = useState([]);
     const [analysisContext, setAnalysisContext] = useContext(AnalysisContext);
 
     useEffect(() => {
-        setAnalysisContext({...analysisContext, all_functions: props.funcs, func_history: []})
+        setAnalysisContext({...analysisContext, allFunctions: props.funcs, funcHistory: []})
     }, []);
 
     useEffect(() => {
-        console.log(analysisContext.func_history)
-    }, [analysisContext.func_history]);
+        console.log(analysisContext.funcHistory)
+    }, [analysisContext.funcHistory]);
 
     useEffect(() => {
-        if (analysisContext.selected_function !== null) {
-            const index = funcs.findIndex(f => f.id === analysisContext.selected_function);
+        if (analysisContext.selectedFunction !== null) {
+
+            const index = funcs.findIndex(f => f.id === analysisContext.selectedFunction);
             if (index !== -1 && scrollRefs.current[index]) {
                 scrollRefs.current[index].scrollIntoView({ behavior: 'smooth'});
             }
-            setAnalysisContext({...analysisContext, func_banner: `${funcs[index].name}`})
+            console.log("BANNER CODE")
+            console.log(funcs[index])
+            //setAnalysisContext({...analysisContext, funcBanner: `${funcs[index].name}`})
         }
-    }, [analysisContext.selected_function]);
+    }, [analysisContext.selectedFunction]);
 
     function onBackClick(){
-        if(analysisContext.func_history.length > 1){
-            const funcHistory = analysisContext.func_history.slice(0, -1);
-            setAnalysisContext({...analysisContext, selected_function: funcHistory[funcHistory.length - 1], func_history: funcHistory})
+        if(analysisContext.funcHistory.length > 1){
+            const funcHistory = analysisContext.funcHistory.slice(0, -1);
+            setAnalysisContext({...analysisContext, selectedFunction: funcHistory[funcHistory.length - 1], funcHistory: funcHistory})
         }
     }
 
     const scrollRefs = useRef([]);
 
     async function onFunctionClick(id){        
-        if(analysisContext.func_history){
-            const newFuncHistory = [...analysisContext.func_history, id]
-            setAnalysisContext({...analysisContext, func_history: newFuncHistory, selected_function: id})
+        if(analysisContext.funcHistory){
+            const newFuncHistory = [...analysisContext.funcHistory, id]
+            setAnalysisContext({...analysisContext, funcHistory: newFuncHistory, selectedFunction: id})
         } else {
-            setAnalysisContext({...analysisContext, func_history: [id], selected_function: id})
+            setAnalysisContext({...analysisContext, funcHistory: [id], selectedFunction: id})
         }
     }
 
@@ -70,13 +73,12 @@ export default function FunctionList(props) {
             <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
             <div className="component-body">
                 {funcs.map((f,index) => {
-                return (<>
-                    <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selected_function == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>
+                return (
+                    <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selectedFunction == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>
                         {f.addr}:{f.name}
+                        <button onClick={() => cfg_req(f.id)}>send cfg req</button>
                     </div>
-                    <button onClick={() => cfg_req(f.id)}>send cfg req</button></>
-                )
-                })}
+                )})}
             </div>
         </div>
     )
