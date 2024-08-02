@@ -1,0 +1,28 @@
+.code-node {
+    padding: 0.5rem;
+    font-family: monospace;
+    background: white;
+    border: 2px solid black;
+}
+
+.codenode-line {
+    display: flex;
+    white-space: nowrap;
+}
+
+.codenode-addr {
+    color: darkblue;
+    width: 100px; /* Adjust width as needed */
+}
+
+.codenode-op {
+    color: blue;
+    width: 50px; /* Adjust width as needed */
+    text-align: left;
+}
+
+.codenode-data {
+    color: darkred;
+    cursor: pointer;
+    flex-grow: 1;
+}

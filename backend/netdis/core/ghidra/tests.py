@@ -45,13 +45,20 @@ def ghidra_function_cfg(program, func_id):
         currentProgram = flat_api.getCurrentProgram()
         if Function.objects.get(id=func_id):
             func = Function.objects.get(id=func_id)
+            print(f"Looking for address {func.addr}")
             func_address = currentProgram.getAddressFactory().getAddress(func.addr)
+            print("Func address")
+            print(func_address)
             f = currentProgram.getFunctionManager().getFunctionAt(func_address)
+            print("f")
+            print(f)
+            print("f body")
+            print(f.body)
             code_block_model = blockmodel.BasicBlockModel(currentProgram)
             blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
             for block in blocks:
-                if Block.objects.filter(addr=block.minAddress).exists():
-                    block_obj = Block.objects.get(addr=block.minAddress)
+                if Block.objects.filter(function=func, addr=block.minAddress).exists():
+                    block_obj = Block.objects.get(function=func, addr=block.minAddress)
                 else:
                     block_obj = Block(function = func, addr=block.minAddress)
                     block_obj.save()
@@ -61,8 +68,8 @@ def ghidra_function_cfg(program, func_id):
                 dsts = code_block_model.getDestinations(block, monitor)
                 while srcs.hasNext():
                     src = srcs.next().getSourceBlock()
-                    if Block.objects.filter(addr=src.minAddress).exists():
-                        src_obj = Block.objects.get(addr=src.minAddress)
+                    if Block.objects.filter(function=func, addr=src.minAddress).exists():
+                        src_obj = Block.objects.get(function=func, addr=src.minAddress)
                         block_obj.src.add(src_obj)
                     else:
                         src_obj = Block(function = func, addr=src.minAddress)
@@ -71,8 +78,8 @@ def ghidra_function_cfg(program, func_id):
                     print(f"SRC id {src_obj.id} : {src_obj.addr}")
                 while dsts.hasNext():
                     dst = dsts.next().getDestinationBlock()
-                    if Block.objects.filter(addr=dst.minAddress).exists():
-                        dst_obj = Block.objects.get(addr=dst.minAddress)
+                    if Block.objects.filter(function=func, addr=dst.minAddress).exists():
+                        dst_obj = Block.objects.get(function=func, addr=dst.minAddress)
                         block_obj.dst.add(dst_obj)
                     else:
                         dst_obj = Block(function = func, addr=dst.minAddress)
@@ -101,6 +108,8 @@ def ghidra_full_disassembly(program, proj_obj_id):
         currentProgram = flat_api.getCurrentProgram()
         funcs = currentProgram.getFunctionManager().getFunctions(True)
         for f in funcs:
+            print("f..")
+            print(f)
             project = Project.objects.get(pk = proj_obj_id)
             function_obj = Function(project=project,name=f.getName(), addr=f.getEntryPoint())
             function_obj.save()
@@ -112,10 +121,12 @@ def ghidra_full_disassembly(program, proj_obj_id):
                 block_obj.save()
                 
                 instruction = currentProgram.getListing().getInstructionAt(block.minAddress)
-                while instruction and instruction.getMinAddress() < block.maxAddress:
-                    operands = []
+                while instruction and instruction.getMinAddress() <= block.maxAddress:
+                    operands = ''
                     for i in range(instruction.getNumOperands()):
-                        operands.append(instruction.getDefaultOperandRepresentation(i))
+                        operands += instruction.getDefaultOperandRepresentation(i)
+                        operands += ', '
+                    operands = operands[:-2]
                     disasm_obj = Disasm(block=block_obj, op=instruction.getMnemonicString(), data=operands, addr=instruction.getMinAddress())
                     disasm_obj.save()
                     instruction = instruction.getNext()

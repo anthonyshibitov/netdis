@@ -110,7 +110,7 @@ export default function Listing() {
                                 <span className="listing-op">
                                     {d.op}&nbsp;
                                 </span>
-                                <span onClick={() => addressClick(d.data)} className="listing-instruction">
+                                <span onClick={() => addressClick(d.data)} className="listing-data">
                                     {d.data}
                                 </span>
                                 <span className="xref">{internalFuncRef(d.data) ? `[XREF=>${internalFuncRef(d.data).name}]` : ''}</span>

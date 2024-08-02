@@ -31,13 +31,13 @@
     grid-column-start: 2;
 }
 
-.listing-instruction {
+.listing-data {
     color: darkred;
     cursor: pointer;
     grid-column: span 3;
 }
 
-.listing-instruction:hover {
+.listing-data:hover {
     background-color: yellow;
 }
 

@@ -5,7 +5,8 @@ import { AnalysisContext } from "../context/AnalysisContext";
 
 
 export default function FunctionList(props) {
-    const funcs = props.funcs;
+    const funcs = props.funcs.funcs;
+    const file_id = props.funcs.file_id;
     const [dis, setDis] = useState([]);
     const [analysisContext, setAnalysisContext] = useContext(AnalysisContext);
 
@@ -36,7 +37,7 @@ export default function FunctionList(props) {
 
     const scrollRefs = useRef([]);
 
-    async function onFunctionClick(id){
+    async function onFunctionClick(id){        
         if(analysisContext.func_history){
             const newFuncHistory = [...analysisContext.func_history, id]
             setAnalysisContext({...analysisContext, func_history: newFuncHistory, selected_function: id})
@@ -46,14 +47,10 @@ export default function FunctionList(props) {
     }
 
     function cfg_req(func_id){
-        console.log("sending post");
         const url = import.meta.env.VITE_BACKEND + 'api/func_graph/';
-        axios.post(url, { "file_id": "1", "function_id": func_id })
+        axios.post(url, { "file_id": file_id, "function_id": func_id })
         .then(response => {
-            console.log(response.data)
-            console.log("CFG queued...");
             const task_id = response.data.task_id;
-            console.log(`Task id: ${task_id}`)
             const timer = setInterval(() => {
                 const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
                 const resp = axios.get(url).then((response => {
@@ -62,7 +59,6 @@ export default function FunctionList(props) {
                         clearInterval(timer);
                         const graph = response.data.result.json_result;
                         setAnalysisContext({...analysisContext, graph: graph, graphSet: true})
-                        console.log(graph);
                     }
                 }))
             }, 1000);

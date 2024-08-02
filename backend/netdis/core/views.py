@@ -34,7 +34,7 @@ def binary_ingest(request):
             project = Project.objects.get(file = uploaded_file)
             print("Loaded project")
             print(project)
-            return Response({ "project_id": project.id })
+            return Response({ "project_id": project.id, "file_id": uploaded_file.id })
         # Uploaded file does not exist. Upload, analyze, and delete it.
         else:
             uploaded_file = UploadedFile(file=file_obj, hash=hash)

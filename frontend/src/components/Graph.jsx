@@ -6,20 +6,27 @@ import {
     Controls,
     Background,
     useNodesState,
-    useEdgesState
+    useEdgesState,
+    MarkerType
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import CodeNode from "./CodeNode";
 import axios from "axios";
 
 const initialNodePosition = (index) => {
     return { x: index * 250, y: 100 };
 };
 
+const nodeTypes = {
+    codeNode: CodeNode
+}
+
 const convertToReactFlowFormat = (graph) => {
     const nodes = graph.nodes.map((node, index) => ({
         id: node.id.toString(),
         position: initialNodePosition(index),
-        data: { label: `Node ${node.id}` },
+        data: { label: `Node ${node.id}`, text: '' },
+        type: 'codeNode',
         draggable: true
     }));
 
@@ -27,8 +34,13 @@ const convertToReactFlowFormat = (graph) => {
         id: `edge-${index}`,
         source: edge.src.toString(),
         target: edge.dst.toString(),
-        type: 'step'
+        type: 'smoothstep',
+        markerEnd: {
+            type: MarkerType.ArrowClosed,
+          },
     }));
+    console.log("EDGES")
+    console.log(edges)
 
     return { nodes, edges };
 };
@@ -43,7 +55,7 @@ export default function Graph() {
         if (analysisContext.graphSet) {
             const convertedGraph = convertToReactFlowFormat(analysisContext.graph);
             setGraph(convertedGraph);
-            setNodes(convertedGraph.nodes);
+            //setNodes(convertedGraph.nodes);
             setEdges(convertedGraph.edges);
 
             // Prepare to fetch disassembly data for each node
@@ -56,16 +68,20 @@ export default function Graph() {
                 .then(responses => {
                     const updatedNodes = convertedGraph.nodes.map((node, index) => {
                         const disasmData = responses[index].data;
-                        let disasmString = '';
+                        let text = []
+                        let disasmString = [];
                         for (let j = 0; j < disasmData.length; j++) {
-                            disasmString += `${disasmData[j].op} ${disasmData[j].data}\n`;
+                            disasmString.push(`${disasmData[j].addr}: ${disasmData[j].op} ${disasmData[j].data}\n`);
+                            console.log(disasmString);
+                            text.push({"addr": disasmData[j].addr, "op": disasmData[j].op, "data": disasmData[j].data})
                         }
                         return {
                             ...node,
-                            data: { label: disasmString }
+                            data: { label: `test`, text: text }
                         };
                     });
-
+                    console.log("Updated nodes")
+                    console.log(updatedNodes);
                     setNodes(updatedNodes);
                 })
                 .catch(error => {
@@ -79,13 +95,14 @@ export default function Graph() {
     }
 
     return (
-        <div style={{ height: '500px' }}>
+        <div className="component-wrapper" style={{ height: '33vh' }}>
             <ReactFlowProvider>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
                     onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
+                    // onEdgesChange={onEdgesChange}
+                    nodeTypes={nodeTypes}
                 >
                     <Controls />
                     <Background />
