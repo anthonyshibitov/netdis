@@ -28,8 +28,8 @@ const CodeNode = ({ data }) => {
                     </div>
                 )})}
             </div>
-            <Handle type="target" position="top" style={{ background: '#555' }} />
-            <Handle type="source" position="bottom" style={{ background: '#555' }} />
+            <Handle type="target" position="top" />
+            <Handle type="source" position="bottom" />
         </div>
     );
 };

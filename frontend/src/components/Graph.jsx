@@ -86,7 +86,8 @@ const convertToReactFlowFormat = async (graph, nodeSizes) => {
         position: {x: 0, y: 0},
         data: { label: `Node ${node.id}`, text: '' },
         type: 'codeNode',
-        draggable: true
+        draggable: true,
+        connectable: false,
     }));
 
     const edges = graph.edges.map((edge, index) => ({
@@ -96,7 +97,9 @@ const convertToReactFlowFormat = async (graph, nodeSizes) => {
         type: 'smoothstep',
         markerEnd: {
             type: MarkerType.ArrowClosed,
+            color: "black",
         },
+        style: { stroke: "black", strokeWidth: 2 }
     }));
 
     //return await layoutGraph(nodes, edges, nodeSizes);
@@ -175,6 +178,8 @@ export default function Graph() {
                     // onEdgesChange={onEdgesChange}
                     nodeTypes={nodeTypes}
                     minZoom={0.05}
+                    connectable={false}
+                    fitView
                 >
                     <Controls />
                     <Background />

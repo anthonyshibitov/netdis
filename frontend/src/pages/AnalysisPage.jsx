@@ -26,9 +26,9 @@ const AnalysisPage = () => {
     }, []);
 
     const layout = [
-        { i: "a", x: 0, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
-        { i: "b", x: 4, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
-        { i: "c", x: 8, y: 0, w: 4, h: 4, minW: 3, minH: 3 }
+        { i: "a", x: 8, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
+        { i: "b", x: 8, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
+        { i: "c", x: 0, y: 0, w: 8, h: 8, minW: 3, minH: 3 }
     ];
 
     return (

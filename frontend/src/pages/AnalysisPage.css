@@ -45,11 +45,15 @@
 .draggable-handle {
     cursor: move;
     background-color: #ccc;
-    padding: 5px;
-    text-align: center;
+    /* text-align: right; */
+    display: flex;
+    flex-direction: row-reverse;
     border-bottom: 1px solid #aaa;
+    padding: 0px;
     height: 20px;
     width: 100%;
     flex-grow: 0;
     flex-shrink: 0;
+    overflow-y: hidden;
+    user-select: none;
 }

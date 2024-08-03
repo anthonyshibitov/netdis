@@ -54,13 +54,12 @@ export default function UploadPage() {
     }
 
     return (
-        <>
-            <form>
-                <input type="file" onChange={handleChange}/>
-            </form>
-            <div>
+        <div className="flex flex-col justify-center items-center p-4">
+            <label htmlFor="file-upload" className="cursor-pointer m-4 px-6 py-3 hover:ring-2 text-white bg-ndblue rounded-md">Select file</label>
+            <input id="file-upload" type="file" className="hidden" onChange={handleChange}/>
+            <div className="p-2">
                 {status}
             </div>
-        </>
+        </div>
     )
 }

@@ -75,12 +75,12 @@ export default function Listing() {
     }, [analysisContext.selectedFunction]);
 
     return (
-        <div className="component-wrapper listing-wrapper">
+        <div className="component-wrapper">
             <div className="component-title">Disassembly: {analysisContext.funcBanner}</div>
-            <div className="component-body listing-container font-mono">
+            <div className="component-body font-mono">
                 {blocks.map((block, key) => (
-                    <div key={key} className="listing-block text-xs">
-                        <div className="listing-label overflow-x-scroll text-black/75">LABEL {block.addr}</div>
+                    <div key={key} className="text-xs">
+                        <div className="overflow-x-scroll text-black/75">LABEL {block.addr}</div>
                         {block.disassembly.map((d, dkey) => (
                             <div className="flex flex-nowrap whitespace-nowrap" key={dkey}>
                                 <span className="text-purple-900">
