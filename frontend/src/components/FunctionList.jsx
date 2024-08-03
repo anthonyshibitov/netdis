@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect, useRef } from "react";
 import axios from "axios";
-import './FunctionList.css';
+// import './FunctionList.css';
 import { AnalysisContext } from "../context/AnalysisContext";
 
 
@@ -71,7 +71,7 @@ export default function FunctionList(props) {
     return (
         <div className="function-list component-wrapper">
             <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
-            <div className="component-body overflow-x-hidden">
+            <div className="component-body overflow-x-hidden font-mono text-xs">
                 {funcs.map((f,index) => {
                 return (
                     <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selectedFunction == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>

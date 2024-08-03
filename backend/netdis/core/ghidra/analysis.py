@@ -72,6 +72,7 @@ def ghidra_function_cfg(program, func_id):
                 while dsts.hasNext():
                     dst = dsts.next().getDestinationBlock()
                     if Block.objects.filter(function=func, addr=dst.minAddress).exists():
+                        
                         dst_obj = Block.objects.get(function=func, addr=dst.minAddress)
                         block_obj.dst.add(dst_obj)
                     else:

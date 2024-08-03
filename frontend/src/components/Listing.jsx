@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { AnalysisContext } from "../context/AnalysisContext";
 import axios from "axios";
-import './Listing.css'
+// import './Listing.css'
 
 export default function Listing() {
     const [analysisContext, setAnalysisContext] = useContext(AnalysisContext);
@@ -77,19 +77,19 @@ export default function Listing() {
     return (
         <div className="component-wrapper listing-wrapper">
             <div className="component-title">Disassembly: {analysisContext.funcBanner}</div>
-            <div className="component-body listing-container">
+            <div className="component-body listing-container font-mono">
                 {blocks.map((block, key) => (
-                    <div key={key} className="listing-block">
-                        <div className="listing-label">LABEL {block.addr}</div>
+                    <div key={key} className="listing-block text-xs">
+                        <div className="listing-label overflow-x-scroll text-black/75">LABEL {block.addr}</div>
                         {block.disassembly.map((d, dkey) => (
-                            <div className="listing-line" key={dkey}>
-                                <span className="listing-addr">
-                                    {d.addr}:
+                            <div className="flex flex-nowrap whitespace-nowrap" key={dkey}>
+                                <span className="text-purple-900">
+                                    {d.addr}:&nbsp;
                                 </span>
-                                <span className="listing-op">
+                                <span className="text-blue-800">
                                     {d.op}&nbsp;
                                 </span>
-                                <span onClick={() => addressClick(d.data)} className="listing-data">
+                                <span onClick={() => addressClick(d.data)} className="text-red-800">
                                     {d.data}
                                 </span>
                                 <span className="xref">{internalFuncRef(d.data) ? `[XREF=>${internalFuncRef(d.data).name}]` : ''}</span>
