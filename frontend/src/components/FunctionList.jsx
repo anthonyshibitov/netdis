@@ -71,12 +71,12 @@ export default function FunctionList(props) {
     return (
         <div className="function-list component-wrapper">
             <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
-            <div className="component-body">
+            <div className="component-body overflow-x-hidden">
                 {funcs.map((f,index) => {
                 return (
                     <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selectedFunction == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>
                         {f.addr}:{f.name}
-                        <button onClick={() => cfg_req(f.id)}>send cfg req</button>
+                        &nbsp;<button className="text-ndblue" onClick={() => cfg_req(f.id)}>&lt;CFG&gt;</button>
                     </div>
                 )})}
             </div>

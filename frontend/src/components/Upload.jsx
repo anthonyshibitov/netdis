@@ -3,17 +3,11 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 export default function UploadPage() {
-    const [file, setFile] = useState();
     const [status, setStatus] = useState("");
-    const [hash, setHash] = useState("");
-    const [project_id, setProject_id] = useState();
     const navigate = useNavigate();
 
     function handleChange(event){
-        setFile(event.target.files[0]);
-    }
-
-    function handleSubmit(event){
+        const file = event.target.files[0];
         event.preventDefault();
         const url = import.meta.env.VITE_BACKEND + "api/binary_ingest/";
         const formData = new FormData();
@@ -61,9 +55,8 @@ export default function UploadPage() {
 
     return (
         <>
-            <form onSubmit={handleSubmit}>
+            <form>
                 <input type="file" onChange={handleChange}/>
-                <button type="submit" >Upload</button>
             </form>
             <div>
                 {status}

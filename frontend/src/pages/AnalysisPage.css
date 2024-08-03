@@ -27,3 +27,29 @@
 .function-listing-container {
     height: 200px;
 }
+
+.react-grid-item {
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+}
+
+.react-grid-item > * {
+    flex-grow: 1;
+    flex-shrink: 1;
+    overflow: auto;
+    padding: 10px;
+}
+
+.draggable-handle {
+    cursor: move;
+    background-color: #ccc;
+    padding: 5px;
+    text-align: center;
+    border-bottom: 1px solid #aaa;
+    height: 20px;
+    width: 100%;
+    flex-grow: 0;
+    flex-shrink: 0;
+}
