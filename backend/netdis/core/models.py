@@ -29,7 +29,6 @@ class Block(models.Model):
     src = models.ManyToManyField('self', related_name="src_blocks", symmetrical=False, blank=True)
     dst = models.ManyToManyField('self', related_name="dst_blocks", symmetrical=False, blank=True)
     addr = models.CharField(max_length=64)
-    
 
 class Disasm(models.Model):
     block = models.ForeignKey(Block, on_delete=models.CASCADE)   

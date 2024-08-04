@@ -49,6 +49,7 @@ def ghidra_function_cfg(program, func_id):
             f = currentProgram.getFunctionManager().getFunctionAt(func_address)
             code_block_model = blockmodel.BasicBlockModel(currentProgram)
             blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
+            edges = []
             for block in blocks:
                 if Block.objects.filter(function=func, addr=block.minAddress).exists():
                     block_obj = Block.objects.get(function=func, addr=block.minAddress)
@@ -70,7 +71,10 @@ def ghidra_function_cfg(program, func_id):
                         block_obj.src.add(src_obj)
                     #print(f"SRC id {src_obj.id} : {src_obj.addr}")
                 while dsts.hasNext():
-                    dst = dsts.next().getDestinationBlock()
+                    dst_edge = dsts.next()
+                    dst = dst_edge.getDestinationBlock()
+                    # if dst_edge.getFlowType().isCall():
+                    #     continue
                     if Block.objects.filter(function=func, addr=dst.minAddress).exists():
                         
                         dst_obj = Block.objects.get(function=func, addr=dst.minAddress)
@@ -79,15 +83,31 @@ def ghidra_function_cfg(program, func_id):
                         dst_obj = Block(function = func, addr=dst.minAddress)
                         dst_obj.save()
                         block_obj.dst.add(dst_obj)  
-                    #print(f"DST id {dst_obj.id} : {dst_obj.addr}")
+                    edge_type = ""
+                    print(f"FLOW TYPE FROM {block_obj.id} to {dst_obj.id}")
+                    print(dst_edge.getFlowType())
+                    if(dst_edge.getFlowType().isConditional()):
+                        edge_type = "conditional"
+                    if(dst_edge.getFlowType().isUnConditional()):
+                        edge_type = "unconditional"
+                    edges.append({"src": block_obj.id, "dst": dst_obj.id, "type": edge_type})
+                
+                # Handle fallthrough to the next block
+                # next_instr = currentProgram.getListing().getInstructionAfter(block.maxAddress)
+                # while next_instr and next_instr.getMinAddress() <= f.body.maxAddress:
+                #     next_flow_type = next_instr.getFlowType()
+                #     if next_flow_type.isJump():
+                #         break  # Stop extending the block if the next instruction is a jump 
+                #     block.maxAddress = next_instr.getMaxAddress()  # Extend the current block
+                #     next_instr = currentProgram.getListing().getInstructionAfter(next_instr.getMaxAddress())
     
             # Now return the json object!
             blocks = Block.objects.filter(function=func).all()
             nodes = [{"id": block.id} for block in blocks]
-            edges = []
-            for block in blocks:
-                for dst in block.dst.all():
-                    edges.append({"src": block.id, "dst": dst.id})
+            # edges = []
+            # for block in blocks:
+            #     for dst in block.dst.all():
+            #         edges.append({"src": block.id, "dst": dst.id})
                     
             cfg_result = {"nodes": nodes, "edges": edges}
     return cfg_result
@@ -108,12 +128,17 @@ def ghidra_full_disassembly(program, proj_obj_id):
             code_block_model = blockmodel.BasicBlockModel(currentProgram)
             blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
 
+            #Here is where we need to address the call fallthrough issue
             for block in blocks:
                 block_obj = Block(function = function_obj, addr=block.minAddress)
                 block_obj.save()
                 
                 instruction = currentProgram.getListing().getInstructionAt(block.minAddress)
                 while instruction and instruction.getMinAddress() <= block.maxAddress:
+                    # print("instruction min address")
+                    # print(instruction.getMinAddress())
+                    # print("block max address")
+                    # print(block.maxAddress)
                     operands = ''
                     for i in range(instruction.getNumOperands()):
                         operands += instruction.getDefaultOperandRepresentation(i)

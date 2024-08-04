@@ -31,10 +31,10 @@ const layoutGraph = async (nodes, edges, nodeSizes) => {
     console.log("HERES EDGES")
     console.log(edges)
 
-        // Create a set of node IDs for quick lookup
+    // Create a set of node IDs for quick lookup
     const nodeIds = new Set(nodes.map(node => node.id));
 
-        // Filter edges to include only those with valid source and target
+    // Filter edges to include only those with valid source and target
     const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
     
     console.log("NODE SIZES SHOULD BE SET");
@@ -90,17 +90,32 @@ const convertToReactFlowFormat = async (graph, nodeSizes) => {
         connectable: false,
     }));
 
-    const edges = graph.edges.map((edge, index) => ({
-        id: `edge-${index}`,
-        source: edge.src.toString(),
-        target: edge.dst.toString(),
-        type: 'smoothstep',
-        markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: "black",
-        },
-        style: { stroke: "black", strokeWidth: 2 }
-    }));
+    const edges = graph.edges.map((edge, index) => {
+        //Find edge where source is the same, but target is different
+        let color = 'black';
+        if(edge.type == "conditional"){
+            color = 'green';
+            for(let i = 0; i < graph.edges.length; i++){
+                if(graph.edges[i].src == edge.src && graph.edges[i].dst != edge.dst){
+                    graph.edges[i].type = "fallthrough"
+                }
+            }
+        }
+        if(edge.type == "fallthrough"){
+            color = 'red';
+        }
+        return {
+            id: `edge-${index}`,
+            source: edge.src.toString(),
+            target: edge.dst.toString(),
+            type: 'smoothstep',
+            markerEnd: {
+                type: MarkerType.ArrowClosed,
+                color: color,
+            },
+            style: { stroke: color, strokeWidth: 2 }
+        }
+    });
 
     //return await layoutGraph(nodes, edges, nodeSizes);
     return {nodes, edges};

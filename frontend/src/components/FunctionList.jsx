@@ -60,6 +60,8 @@ export default function FunctionList(props) {
                     if(response.data.status == "DONE" && response.data.task_type == "cfg_analysis"){
                         clearInterval(timer);
                         const graph = response.data.result.json_result;
+                        console.log("GOT GRAPH")
+                        console.log(graph)
                         setAnalysisContext({...analysisContext, graph: graph, graphSet: true})
                     }
                 }))
