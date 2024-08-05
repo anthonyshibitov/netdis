@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remove circular handle elements */
 .react-flow__handle {
     opacity: 0;
 }

@@ -50,7 +50,16 @@ export default function UploadPage() {
                     }))
                 }, 1000);
             }
-        }))
+        })).catch(error => {
+            console.log("ERROR!!");
+            console.log(error.response.data);
+            if(error.response.data.error){
+                console.log("ERROR");
+                console.log(error.response.data.error);
+                setStatus(`ERROR: ${error.response.data.error} - ${error.response.data.error_info}`)
+                return;
+            }
+        })
     }
 
     return (

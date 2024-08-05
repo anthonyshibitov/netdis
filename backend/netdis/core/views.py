@@ -24,9 +24,18 @@ def test_view(request):
 def binary_ingest(request):
     if(request.method == 'POST' and request.FILES.get('file')):
         file_obj = request.FILES['file'] 
+        print("File size:")
+        file_size = file_obj.size
+        print(file_size)
         contents = file_obj.read()
+        print("File size after reading:")
+        print(len(contents))
         hash = hashlib.sha256(contents).hexdigest()
         file_obj.name = hash
+        
+        # Reject if file is over 5mb
+        if(file_size > 5242880):
+            return Response({"error": "File too large", "error_info": file_size}, status=status.HTTP_400_BAD_REQUEST)
                 
         # Uploaded file, and analysis already exists
         if UploadedFile.objects.filter(hash = hash).exists():

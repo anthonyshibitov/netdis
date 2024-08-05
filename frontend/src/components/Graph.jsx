@@ -31,10 +31,9 @@ const layoutGraph = async (nodes, edges, nodeSizes) => {
     console.log("HERES EDGES")
     console.log(edges)
 
-    // Create a set of node IDs for quick lookup
     const nodeIds = new Set(nodes.map(node => node.id));
 
-    // Filter edges to include only those with valid source and target
+    // Remove edges where the destination is a blank node
     const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
     
     console.log("NODE SIZES SHOULD BE SET");

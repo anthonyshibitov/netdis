@@ -1,13 +1,5 @@
-.analysis-container {
-    /* display: flex; */
-    /* flex-direction: column; */
-    /* gap: 1rem; */
-}
-
 .component-wrapper {
     border: 1px solid #5b92e5;
-    /* width: fit-content; */
-    height: 33vh;
 }
 
 .component-title {
@@ -22,10 +14,6 @@
     padding: 0.5rem;
     overflow-y: scroll;
     height: calc(100% - 3.2rem); /* Adjust 2rem to the height of .component-title */
-}
-
-.function-listing-container {
-    height: 200px;
 }
 
 .react-grid-item {
