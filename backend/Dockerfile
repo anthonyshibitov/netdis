@@ -10,6 +10,14 @@ RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghid
 RUN unzip ./ghidra_11.1.2_PUBLIC_20240709.zip
 ENV GHIDRA_INSTALL_DIR=/app/ghidra_11.1.2_PUBLIC
 
+# 4 hours of my life spent on these two RUNs
+RUN curl -fsSL https://services.gradle.org/distributions/gradle-7.6-bin.zip -o gradle-7.6-bin.zip && \
+    unzip gradle-7.6-bin.zip -d /opt && \
+    ln -s /opt/gradle-7.6/bin/gradle /usr/bin/gradle && \
+    rm gradle-7.6-bin.zip
+
+RUN ./ghidra_11.1.2_PUBLIC/support/buildNatives
+
 EXPOSE 8000
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf

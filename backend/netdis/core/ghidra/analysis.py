@@ -34,6 +34,48 @@ def function_call_graph(program):
 
     return cg
 
+@shared_task()
+def ghidra_decompile_func(program, func_id):
+    try:
+        with pyhidra.open_program(program) as flat_api:
+            from ghidra.app.decompiler import DecompInterface
+            from ghidra.util.task import ConsoleTaskMonitor
+            print("DECOMPILE FUNC")
+            currentProgram = flat_api.getCurrentProgram()
+            print("CURRENT PROGRAM:", currentProgram)
+            
+            func = Function.objects.get(id=func_id)
+            print("FUNC OBJ:", func)
+            
+            func_address = currentProgram.getAddressFactory().getAddress(func.addr)
+            print("FUNC_ADDRESS:", func_address)
+            
+            function = currentProgram.getFunctionManager().getFunctionAt(func_address)
+            print("FUNCTION:", function)
+            
+            # Using DecompInterface for more control
+            decompiler = DecompInterface()
+            decompiler.openProgram(currentProgram)
+            task_monitor = ConsoleTaskMonitor()
+            decomp_result = decompiler.decompileFunction(function, 30, task_monitor)
+            
+            print("RESULTS:", decomp_result)
+
+            if decomp_result.decompileCompleted():
+                print("Decompilation successful!")
+                # Process the decompilation result
+                decompiled_code = decomp_result.getDecompiledFunction().getC()
+                return decompiled_code
+            else:
+                print("Decompilation failed.")
+                error_message = decomp_result.getErrorMessage()
+                print("Error Message:", error_message)
+                # Handle decompilation failure
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise e
+
 # My god..
 
 @shared_task()
@@ -84,8 +126,8 @@ def ghidra_function_cfg(program, func_id):
                         dst_obj.save()
                         block_obj.dst.add(dst_obj)  
                     edge_type = ""
-                    print(f"FLOW TYPE FROM {block_obj.id} to {dst_obj.id}")
-                    print(dst_edge.getFlowType())
+                    # print(f"FLOW TYPE FROM {block_obj.id} to {dst_obj.id}")
+                    # print(dst_edge.getFlowType())
                     if(dst_edge.getFlowType().isConditional()):
                         edge_type = "conditional"
                     if(dst_edge.getFlowType().isUnConditional()):

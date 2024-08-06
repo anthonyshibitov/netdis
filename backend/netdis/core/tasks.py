@@ -1,10 +1,10 @@
 # Celery tasks
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult
 from celery import shared_task
 from .utils import timer
 import subprocess
 import os
-from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly
+from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func
 from django.contrib.contenttypes.models import ContentType
 
 def primary_analysis(file_id, task_id):
@@ -54,6 +54,25 @@ def cfg_analysis(file_id, func_id, task_id):
 @shared_task()
 def cfg_analysis_callback(cfg_result, task_id):    
     result = CFGAnalysisResult.objects.create(json_result=cfg_result)
+    result.save()
+    task = Task.objects.get(id=task_id)
+    task.status = "DONE"
+    task.content_type = ContentType.objects.get_for_model(result)
+    task.object_id = result.id
+    task.result = result
+    task.save()
+    
+def decompile_function(file_id, func_id, task_id):
+    task = Task.objects.get(pk=task_id)
+    task.status = "ACTIVE"
+    task.save()
+    file = UploadedFile.objects.get(pk=file_id)
+    file_path = "./media/" + file.file.name
+    ghidra_decompile_func.apply_async(args=(file_path, func_id), link=decompile_function_callback.s(task.id))
+    
+@shared_task()
+def decompile_function_callback(result, task_id):
+    result = DecompAnalysisResult.objects.create(decomp_result=result)
     result.save()
     task = Task.objects.get(id=task_id)
     task.status = "DONE"

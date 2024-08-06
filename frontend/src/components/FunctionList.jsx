@@ -69,6 +69,26 @@ export default function FunctionList(props) {
         })
     }
 
+    function decomp_req(func_id){
+        const url = import.meta.env.VITE_BACKEND + 'api/decomp_func/';
+        axios.post(url, { "file_id": file_id, "function_id": func_id })
+        .then(response => {
+            const task_id = response.data.task_id;
+            const timer = setInterval(() => {
+                const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
+                const resp = axios.get(url).then((response => {
+                    console.log(response);
+                    if(response.data.status == "DONE" && response.data.task_type == "decomp_func"){
+                        clearInterval(timer);
+                        const decomp_result = response.data.result.decomp_result;
+                        setAnalysisContext({...analysisContext, decomp: decomp_result})
+                        console.log(decomp_result)
+                    }
+                }))
+            }, 1000);
+        })
+    }
+
     return (
         <div className="component-wrapper">
             <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
@@ -78,6 +98,7 @@ export default function FunctionList(props) {
                     <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selectedFunction == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>
                         {f.addr}:{f.name}
                         &nbsp;<button className="text-ndblue" onClick={() => cfg_req(f.id)}>&lt;CFG&gt;</button>
+                        &nbsp;<button className="text-ndblue" onClick={() => decomp_req(f.id)}>&lt;DECOMP&gt;</button>
                     </div>
                 )})}
             </div>

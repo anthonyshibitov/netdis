@@ -49,3 +49,6 @@ class FileUploadResult(models.Model):
     
 class CFGAnalysisResult(models.Model):
     json_result = models.JSONField()
+    
+class DecompAnalysisResult(models.Model):
+    decomp_result = models.TextField(null=True, blank=True)

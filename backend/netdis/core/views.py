@@ -4,13 +4,13 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult
 import hashlib
 import json
 from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block
 from .utils import timer
 from django.core.files.storage import FileSystemStorage
-from .tasks import primary_analysis, cfg_analysis
+from .tasks import primary_analysis, cfg_analysis, decompile_function
 from .serializers import TaskSerializer
 
 @api_view(['GET'])
@@ -105,6 +105,9 @@ def task(request, id):
             case 'cfg_analysis':
                 result = CFGAnalysisResult.objects.get(id=task.object_id)
                 response["result"] = {"json_result": result.json_result}
+            case 'decomp_func':
+                result = DecompAnalysisResult.objects.get(id=task.object_id)
+                response['result'] = {"decomp_result": result.decomp_result}
     return Response(response)
 
 @api_view(['GET'])
@@ -123,4 +126,16 @@ def func_graph(request):
         task = Task.objects.create(task_type='cfg_analysis')
         task.save()
         cfg_analysis(file_id, func_id, task.id)
+        return Response({"task_id": task.id, "status": task.status})
+    
+@api_view(['POST'])
+def decomp_func(request):
+    if(request.body):
+        data_dict = json.loads(request.body.decode("utf-8"))
+        func_id = data_dict['function_id']
+        file_id = data_dict['file_id']
+        print("CALLING DECOMP")
+        task = Task.objects.create(task_type='decomp_func')
+        task.save()
+        decompile_function(file_id, func_id, task.id)
         return Response({"task_id": task.id, "status": task.status})

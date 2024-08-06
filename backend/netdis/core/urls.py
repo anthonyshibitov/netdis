@@ -13,6 +13,7 @@ urlpatterns = [
     path('task/<int:id>', task, name='task'),
     
     path('func_graph/', func_graph, name='func_graph'),
+    path('decomp_func/', decomp_func, name='decomp_func'),
     
     path('proj/', test_view, name='proj'),
     path('func/', test_view, name='func'),

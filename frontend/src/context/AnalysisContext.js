@@ -6,5 +6,6 @@ export const AnalysisContext = createContext({
     funcHistory: [],
     funcBanner: '',
     graph: {},
-    graphSet: false
+    graphSet: false,
+    decomp: '',
 });
