@@ -20,6 +20,8 @@ export default function UploadPage() {
         }
         let state;
         setStatus("Uploading...");
+        console.log("URL")
+        console.log(url)
         axios.post(url, formData, config).then((response => {
             /* If project_id is null, it is still processing/queued! */
             if(response.data.project_id != null){
