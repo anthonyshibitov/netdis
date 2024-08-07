@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    command: sh -c "npm install && npm run build"
+
+  redis:
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

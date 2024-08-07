@@ -27,7 +27,6 @@ def primary_analysis(file_id, task_id):
     proj_obj.save()
     print(f"Project ID created: {proj_obj.id}")
     ghidra_full_disassembly.apply_async(args=(file_path, proj_obj.id), link=primary_analysis_callback.s(task.id, proj_obj.id))
-    print("Worker analysis done!")
     
 @shared_task()
 def primary_analysis_callback(not_used, task_id, project_id):

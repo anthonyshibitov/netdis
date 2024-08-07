@@ -2,12 +2,9 @@ services:
   frontend:
     build:
       context: ./frontend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    command: sh -c "npm install && npm run dev -- --host"
     ports:
     - "5173:5173"
+
   backend:
     build:
       context: ./backend
@@ -15,6 +12,7 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+
   redis:
     image: "redis:alpine"
     command: sh -c "redis-server"
