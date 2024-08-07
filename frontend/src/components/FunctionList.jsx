@@ -91,8 +91,8 @@ export default function FunctionList(props) {
 
     return (
         <div className="component-wrapper">
-            <div className="component-title">Functions <button onClick={onBackClick}>Back</button></div>
-            <div className="component-body overflow-x-hidden font-mono text-xs">
+            <div className="component-title"><button onClick={onBackClick}>Back</button></div>
+            <div className="component-body font-mono text-xs">
                 {funcs.map((f,index) => {
                 return (
                     <div key={f.id} ref={el => scrollRefs.current[index] = el} className={"function-item " + (analysisContext.selectedFunction == f.id ? 'function-highlight' : '')} onClick={() => onFunctionClick(f.id)}>

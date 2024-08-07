@@ -179,26 +179,32 @@ export default function Graph() {
     }, [nodeSizes])
 
     if (!graph) {
-        return <div>Not selected</div>;
+        return (
+        <div className="component-wrapper font-xs text-mono">
+            <div className="component-body">
+                <div className="text-xs font-mono">No function selected</div>
+            </div>
+        </div>
+        );
     }
 
     return (
-        <div className="component-wrapper">
-            <ReactFlowProvider>
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    onNodesChange={onNodesChange}
-                    // onEdgesChange={onEdgesChange}
-                    nodeTypes={nodeTypes}
-                    minZoom={0.05}
-                    connectable={false}
-                    fitView
-                >
-                    <Controls />
-                    <Background />
-                </ReactFlow>
-            </ReactFlowProvider>
+        <div className="component-wrapper font-xs text-mono">
+                <ReactFlowProvider>
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        onNodesChange={onNodesChange}
+                        // onEdgesChange={onEdgesChange}
+                        nodeTypes={nodeTypes}
+                        minZoom={0.05}
+                        connectable={false}
+                        fitView
+                    >
+                        <Controls />
+                        <Background />
+                    </ReactFlow>
+                </ReactFlowProvider>
         </div>
     );
 }

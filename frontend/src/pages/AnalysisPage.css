@@ -4,16 +4,21 @@
 
 .component-title {
     font-weight: bold;
-    padding: 0.3rem;
+    margin: 0.3rem;
     border-bottom: 1px solid #5b92e5;
     display: flex;
-    gap: 1rem;
+    /* gap: 1rem; */
+    /* position: fixed; */
+    top: 0;
+    /* position: sticky; */
+    background-color: white;
 }
 
 .component-body {
-    padding: 0.5rem;
-    overflow-y: scroll;
-    height: calc(100% - 3.2rem); /* Adjust 2rem to the height of .component-title */
+    margin: 0.5rem;
+    /* overflow-y: scroll; */
+    /* height: calc(100% - 3.2rem);  */
+    overflow-x: auto;
 }
 
 .react-grid-item {
@@ -27,7 +32,7 @@
     flex-grow: 1;
     flex-shrink: 1;
     overflow: auto;
-    padding: 10px;
+    /* padding: 10px; */
 }
 
 .draggable-handle {
@@ -35,13 +40,17 @@
     background-color: #ccc;
     /* text-align: right; */
     display: flex;
-    flex-direction: row-reverse;
+    flex-direction: row;
     border-bottom: 1px solid #aaa;
-    padding: 0px;
+    padding: 2px;
+    padding-left: 5px;
     height: 20px;
     width: 100%;
     flex-grow: 0;
     flex-shrink: 0;
     overflow-y: hidden;
     user-select: none;
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: bolder;
 }

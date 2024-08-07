@@ -27,40 +27,43 @@ const AnalysisPage = () => {
     }, []);
 
     const layout = [
-        { i: "a", x: 4, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
-        { i: "b", x: 4, y: 4, w: 4, h: 4, minW: 3, minH: 3 },
-        { i: "c", x: 0, y: 0, w: 4, h: 4, minW: 3, minH: 3 },
-        { i: "d", x: 0, y: 4, w: 4, h: 4, minW: 3, minH: 3 }
+        { i: "a", x: 6, y: 0, w: 6, h: 5, minW: 3, minH: 3 },
+        { i: "b", x: 6, y: 5, w: 6, h: 5, minW: 3, minH: 3 },
+        { i: "c", x: 0, y: 0, w: 6, h: 5, minW: 3, minH: 3 },
+        { i: "d", x: 0, y: 5, w: 6, h: 5, minW: 3, minH: 3 }
     ];
 
     return (
         <AnalysisContext.Provider value={[analysisContext, setAnalysisContext]}>
+            <div>
+                menubar here
+            </div>
             <GridLayout
                 className="layout"
                 layout={layout}
                 cols={12}
-                rowHeight={Math.floor(dimensions.height / 10)}
+                rowHeight={Math.floor(dimensions.height / 12)}
                 width={dimensions.width}
                 isDraggable={true}
                 isResizable={true}
                 draggableHandle=".draggable-handle"
             >
                 <div key="a">
-                    <div className="draggable-handle"></div>
+                    <div className="draggable-handle">Functions</div>
                     <FunctionList functionListProps={state} />
                 </div>
                 <div key="b">
-                    <div className="draggable-handle"></div>
+                    <div className="draggable-handle">Disassembly</div>
                     <Listing />
                 </div>
                 <div key="c">
-                    <div className="draggable-handle"></div>
+                    <div className="draggable-handle">Control Flow Graph</div>
                     <NodeSizeProvider>
                         <Graph />
                     </NodeSizeProvider>
                 </div>
                 <div key="d">
-                    <div className="draggable-handle"></div>
+                    <div className="draggable-handle">Decompilation</div>
                     <Decompilation />
                 </div>
             </GridLayout>

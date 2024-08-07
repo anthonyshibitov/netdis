@@ -26,7 +26,7 @@ export default function UploadPage() {
                 console.log("THIS IS BAD")
                 console.log(response.data)
                 const file_id = response.data.file_id;
-                const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
+                const url = `${import.meta.env.VITE_BACKEND}/api/funcs/`;
                 axios.post(url, {"project_id": response.data.project_id}).then(response => {
                     navigate("/analysis", {state: {funcs: response.data, file_id: file_id}});
                 })

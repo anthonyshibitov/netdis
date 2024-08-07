@@ -20,15 +20,11 @@ export default function Decompilation() {
 
     return (
         <div className="component-wrapper">
-            <div className="component-title">Decompilation</div>
+            {/* <div className="component-title">Decompilation</div> */}
             <div className="component-body overflow-x-hidden font-mono text-xs">
-                <code className="text-xs">
-                    <pre>
-                        <SyntaxHighlighter language="c" style={a11yLight}>
-                            {analysisContext.decomp}
-                        </SyntaxHighlighter>
-                    </pre>
-                </code>
+                <SyntaxHighlighter language="c" style={a11yLight} customStyle={{padding: 0}}>
+                    {analysisContext.decomp}
+                </SyntaxHighlighter>
             </div>
         </div>
 
