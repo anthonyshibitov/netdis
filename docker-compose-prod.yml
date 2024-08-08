@@ -3,6 +3,8 @@ services:
     build:
       context: ./frontend
     command: sh -c "npm install && npm run build"
+    volumes:
+      - ./frontend:/app
 
   redis:
     volumes:
