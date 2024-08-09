@@ -64,6 +64,13 @@ export default function FunctionList(props) {
                         console.log(graph)
                         setAnalysisContext({...analysisContext, graph: graph, graphSet: true})
                     }
+                    if(response.data.status == "DONE" && response.data.task_type == "error"){
+                        clearInterval(timer);
+                        let result = response.data.result.error;
+                        result = result.replace(/'/g, '"');
+                        result = JSON.parse(result)
+                        console.log(`ERROR: ${result.error}`)
+                    }
                 }))
             }, 1000);
         })

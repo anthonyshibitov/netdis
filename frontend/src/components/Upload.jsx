@@ -49,6 +49,14 @@ export default function UploadPage() {
                                 navigate("/analysis", {state: {funcs: response.data, file_id: file_id}});
                             })
                         }
+                        if(response.data.status == "DONE" && response.data.task_type == "error"){
+                            let result = response.data.result.error;
+                            // Pesky single quotes!
+                            result = result.replace(/'/g, '"');
+                            result = JSON.parse(result)
+                            clearInterval(timer)
+                            setStatus(`ERROR: ${result.error}`)
+                        }
                     }))
                 }, 1000);
             }

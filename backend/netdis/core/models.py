@@ -8,10 +8,6 @@ class UploadedFile(models.Model):
     file = models.FileField(upload_to="uploads/", max_length=300)
     hash = models.CharField(max_length=256)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    def delete(self, *args, **kwargs):
-        os.remove(os.path.join(settings.MEDIA_ROOT, self.file.name))
-        self.file = 'PROCESSED'
-        self.save()
     
 class Project(models.Model):
     file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
@@ -52,3 +48,6 @@ class CFGAnalysisResult(models.Model):
     
 class DecompAnalysisResult(models.Model):
     decomp_result = models.TextField(null=True, blank=True)
+    
+class ErrorResult(models.Model):
+    error_message = models.TextField(null=True, blank=True)

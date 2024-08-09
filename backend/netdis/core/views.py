@@ -4,7 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult
 import hashlib
 import json
 from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block
@@ -108,6 +108,9 @@ def task(request, id):
             case 'decomp_func':
                 result = DecompAnalysisResult.objects.get(id=task.object_id)
                 response['result'] = {"decomp_result": result.decomp_result}
+            case 'error':
+                result = ErrorResult.objects.get(id=task.object_id)
+                response['result'] = {"error": result.error_message}
     return Response(response)
 
 @api_view(['GET'])
