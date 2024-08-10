@@ -1,5 +1,4 @@
 import { useContext, useState } from "react"
-import './MenuBar.css';
 
 export default function MenuBar() {
     
