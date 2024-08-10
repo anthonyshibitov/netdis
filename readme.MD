@@ -9,3 +9,5 @@ To-do
  - Address bookmarks
  - Rework frontend to support new operands data format (array of strings)
  - Decompilation view in analysis page? 🤔
+
+ ![Netdis user interface](netdis.png)
