@@ -35,9 +35,7 @@ const AnalysisPage = () => {
 
     return (
         <AnalysisContext.Provider value={[analysisContext, setAnalysisContext]}>
-            <div>
-                menubar here
-            </div>
+            {/* <MenuBar /> */}
             <GridLayout
                 className="layout"
                 layout={layout}

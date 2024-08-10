@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-from rest_framework.permissions import IsAuthenticated
+# from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult
@@ -9,7 +9,6 @@ import hashlib
 import json
 from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block
 from .utils import timer
-from django.core.files.storage import FileSystemStorage
 from .tasks import primary_analysis, cfg_analysis, decompile_function
 from .serializers import TaskSerializer
 
@@ -24,28 +23,24 @@ def test_view(request):
 def binary_ingest(request):
     if(request.method == 'POST' and request.FILES.get('file')):
         file_obj = request.FILES['file'] 
-        print("File size:")
         file_size = file_obj.size
-        print(file_size)
         contents = file_obj.read()
-        print("File size after reading:")
-        print(len(contents))
         hash = hashlib.sha256(contents).hexdigest()
         file_obj.name = hash
         
-        # Reject if file is over 5mb
         if(file_size > 5242880):
+            # Reject if file is over 5mb
             return Response({"error": "File too large", "error_info": file_size}, status=status.HTTP_400_BAD_REQUEST)
                 
-        # Uploaded file, and analysis already exists
         if UploadedFile.objects.filter(hash = hash).exists():
+            # Uploaded file, and analysis already exists
             uploaded_file = UploadedFile.objects.get(hash = hash)
             project = Project.objects.get(file = uploaded_file)
             print("Loaded project")
             print(project)
             return Response({ "project_id": project.id, "file_id": uploaded_file.id })
-        # Uploaded file does not exist. Upload, analyze, and delete it.
         else:
+            # Uploaded file does not exist. Upload, analyze, and delete it.
             uploaded_file = UploadedFile(file=file_obj, hash=hash)
             uploaded_file.save()
             
@@ -63,7 +58,6 @@ def binary_ingest(request):
 def funcs(request):
     if(request.body):
         data_dict = json.loads(request.body.decode("utf-8"))
-        print(data_dict)
         try:
             project_id = data_dict['project_id']
         except Exception as error:
@@ -92,32 +86,27 @@ def disasms(request):
 
 @api_view(['GET'])
 def task(request, id):
-    task = Task.objects.get(pk=id)
-    
-    serializer = TaskSerializer(task)
-    response = serializer.data
-    
-    if task.status == "DONE":
-        match task.task_type:
-            case 'file_upload':
-                result = FileUploadResult.objects.get(id=task.object_id)
-                response["result"] = {"project_id": result.project.id}
-            case 'cfg_analysis':
-                result = CFGAnalysisResult.objects.get(id=task.object_id)
-                response["result"] = {"json_result": result.json_result}
-            case 'decomp_func':
-                result = DecompAnalysisResult.objects.get(id=task.object_id)
-                response['result'] = {"decomp_result": result.decomp_result}
-            case 'error':
-                result = ErrorResult.objects.get(id=task.object_id)
-                response['result'] = {"error": result.error_message}
-    return Response(response)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def probe(request):
-    print(request.user.id)
-    return Response(request.user.id)
+    try:
+        task = Task.objects.get(pk=id)
+        serializer = TaskSerializer(task)
+        response = serializer.data
+        if task.status == "DONE":
+            match task.task_type:
+                case 'file_upload':
+                    result = FileUploadResult.objects.get(id=task.object_id)
+                    response["result"] = {"project_id": result.project.id}
+                case 'cfg_analysis':
+                    result = CFGAnalysisResult.objects.get(id=task.object_id)
+                    response["result"] = {"json_result": result.json_result}
+                case 'decomp_func':
+                    result = DecompAnalysisResult.objects.get(id=task.object_id)
+                    response['result'] = {"decomp_result": result.decomp_result}
+                case 'error':
+                    result = ErrorResult.objects.get(id=task.object_id)
+                    response['result'] = {"error": result.error_message}
+        return Response(response)
+    except Exception as e:
+        return Response('Task does not exist', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def func_graph(request):
@@ -125,11 +114,11 @@ def func_graph(request):
         data_dict = json.loads(request.body.decode("utf-8"))
         func_id = data_dict['function_id']
         file_id = data_dict['file_id']
-        print("CALLING CFG")
         task = Task.objects.create(task_type='cfg_analysis')
         task.save()
         cfg_analysis(file_id, func_id, task.id)
         return Response({"task_id": task.id, "status": task.status})
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
     
 @api_view(['POST'])
 def decomp_func(request):
@@ -137,8 +126,8 @@ def decomp_func(request):
         data_dict = json.loads(request.body.decode("utf-8"))
         func_id = data_dict['function_id']
         file_id = data_dict['file_id']
-        print("CALLING DECOMP")
         task = Task.objects.create(task_type='decomp_func')
         task.save()
         decompile_function(file_id, func_id, task.id)
         return Response({"task_id": task.id, "status": task.status})
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
