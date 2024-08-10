@@ -9,6 +9,7 @@ export default {
       colors : {
         'ndblue': '#5b92e5',
         'ndgrey': '#2a2b2a',
+        'ccc': '#ccc',
       }
     }
   },

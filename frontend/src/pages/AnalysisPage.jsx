@@ -10,6 +10,7 @@ import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { NodeSizeProvider } from "../context/NodeSizeContext.jsx";
 import Decompilation from "../components/Decompilation.jsx";
+import MenuBar from "../components/Menubar.jsx";
 
 const AnalysisPage = () => {
     const { state } = useLocation();
@@ -35,7 +36,7 @@ const AnalysisPage = () => {
 
     return (
         <AnalysisContext.Provider value={[analysisContext, setAnalysisContext]}>
-            {/* <MenuBar /> */}
+            <MenuBar />
             <GridLayout
                 className="layout"
                 layout={layout}

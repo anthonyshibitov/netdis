@@ -102,7 +102,6 @@ def ghidra_full_disassembly(program, proj_obj_id):
                 function_obj.save()
                 code_block_model = blockmodel.BasicBlockModel(currentProgram)
                 blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
-
                 for block in blocks:
                     block_obj = Block(function = function_obj, addr=block.minAddress)
                     block_obj.save()
