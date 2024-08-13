@@ -62,7 +62,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'netdis.urls'
 
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173'
+    'http://localhost'
 ]
 
 CELERY_BROKER_URL = "redis://redis:6379"

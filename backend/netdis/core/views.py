@@ -11,6 +11,7 @@ from .utils import get_functions_from_project, get_blocks_from_function, get_dis
 from .utils import timer
 from .tasks import primary_analysis, cfg_analysis, decompile_function
 from .serializers import TaskSerializer
+import datetime
 
 @api_view(['GET'])
 def test_view(request):
@@ -42,6 +43,8 @@ def binary_ingest(request):
         else:
             # Uploaded file does not exist. Upload, analyze, and delete it.
             uploaded_file = UploadedFile(file=file_obj, hash=hash)
+            uploaded_file.save()
+            uploaded_file.evict_at = uploaded_file.uploaded_at + datetime.timedelta(days=2)
             uploaded_file.save()
             
             print("Queueing worker...")

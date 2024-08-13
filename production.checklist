@@ -1,0 +1,13 @@
+FRONT END
+
+1. /frontend/.env
+    1. Contains the VITE_BACKEND env, which points to the backend server
+2. Build step for /dist/ files
+
+BACK END
+
+1. /backend/settings.py
+    1. ALLOWED_HOSTS must allow the frontend
+    2. CORS_ALLOWED_ORIGINS must allow the frontend
+    3. Configure PostgreSQL database
+2. Configure gunicorn to serve Django app

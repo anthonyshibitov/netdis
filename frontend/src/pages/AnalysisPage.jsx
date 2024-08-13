@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import FunctionList from "../components/FunctionList.jsx";
 import Listing from "../components/Listing.jsx";
 import { AnalysisContext } from "../context/AnalysisContext.js";
+import { MenuContext } from "../context/MenuContext.jsx";
 import './AnalysisPage.css';
 import Graph from "../components/Graph.jsx";
 import GridLayout from "react-grid-layout";
@@ -15,6 +16,7 @@ import MenuBar from "../components/Menubar.jsx";
 const AnalysisPage = () => {
     const { state } = useLocation();
     const [analysisContext, setAnalysisContext] = useState({ "selectedFunction": null });
+    const [menuContext, setMenuContext] = useState({disasmView: true, decompView: true, cfgView: true, functionView: true});
 
     const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
 
@@ -36,36 +38,46 @@ const AnalysisPage = () => {
 
     return (
         <AnalysisContext.Provider value={[analysisContext, setAnalysisContext]}>
-            <MenuBar />
-            <GridLayout
-                className="layout"
-                layout={layout}
-                cols={12}
-                rowHeight={Math.floor(dimensions.height / 12)}
-                width={dimensions.width}
-                isDraggable={true}
-                isResizable={true}
-                draggableHandle=".draggable-handle"
-            >
-                <div key="a">
-                    <div className="draggable-handle">Functions</div>
-                    <FunctionList functionListProps={state} />
-                </div>
-                <div key="b">
-                    <div className="draggable-handle">Disassembly</div>
-                    <Listing />
-                </div>
-                <div key="c">
-                    <div className="draggable-handle">Control Flow Graph</div>
-                    <NodeSizeProvider>
-                        <Graph />
-                    </NodeSizeProvider>
-                </div>
-                <div key="d">
-                    <div className="draggable-handle">Decompilation</div>
-                    <Decompilation />
-                </div>
-            </GridLayout>
+            <MenuContext.Provider value={[menuContext, setMenuContext]}>
+                <MenuBar />
+                <GridLayout
+                    className="layout"
+                    layout={layout}
+                    cols={12}
+                    rowHeight={Math.floor(dimensions.height / 12)}
+                    width={dimensions.width}
+                    isDraggable={true}
+                    isResizable={true}
+                    draggableHandle=".draggable-handle"
+                >
+                    {menuContext.functionView &&
+                    <div key="a">
+                        <div className="draggable-handle">Functions</div>
+                        <FunctionList functionListProps={state} />
+                    </div>
+                    }
+                    {menuContext.disasmView &&
+                    <div key="b">
+                        <div className="draggable-handle">Disassembly</div>
+                        <Listing />
+                    </div>
+                    }
+                    {menuContext.cfgView &&
+                    <div key="c">
+                        <div className="draggable-handle">Control Flow Graph</div>
+                        <NodeSizeProvider>
+                            <Graph />
+                        </NodeSizeProvider>
+                    </div>
+                    }
+                    {menuContext.decompView && 
+                    <div key="d">
+                        <div className="draggable-handle">Decompilation</div>
+                        <Decompilation />
+                    </div>
+                    }
+                </GridLayout>
+            </MenuContext.Provider>
         </AnalysisContext.Provider>
     );
 };

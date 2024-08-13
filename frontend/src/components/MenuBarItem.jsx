@@ -31,9 +31,9 @@ export default function MenuBarItem(props) {
             <div>{name}</div>
             {isOpen && (
                 <div className="border border-ndblue border-t-0 flex flex-col absolute bg-ccc left-0">
-                    {Object.entries(subMenu).map(([name, value]) => {
+                    {Object.entries(subMenu).map(([name, func]) => {
                         return (
-                            <div className="whitespace-pre cursor-pointer px-4 flex hover:bg-white w-full" key={name}>{name}</div>
+                            <div className="whitespace-pre cursor-pointer px-4 flex hover:bg-white w-full" onClick={() => func()} key={name}>{name}</div>
                         )
                     })}
                 </div>

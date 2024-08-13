@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY ./requirements.txt .
 RUN apt-get update && apt-get install -y gcc g++ supervisor unzip java-common openjdk-17-jdk
+RUN python3 -m venv venv && . venv/bin/activate
 RUN pip3 install --upgrade pip
 RUN pip3 install -r requirements.txt
 RUN wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.1.2_build/ghidra_11.1.2_PUBLIC_20240709.zip
@@ -18,10 +19,13 @@ RUN curl -fsSL https://services.gradle.org/distributions/gradle-7.6-bin.zip -o g
 
 RUN ./ghidra_11.1.2_PUBLIC/support/buildNatives
 
-EXPOSE 8000
-
-COPY devsupervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN pip install gunicorn
 
 COPY . .
+
+RUN rm -f /etc/supervisor/conf.d/supervisord.conf
+COPY prodsupervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+EXPOSE 8000
 
 CMD ["/usr/bin/supervisord"]

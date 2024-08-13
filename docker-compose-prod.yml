@@ -5,10 +5,27 @@ services:
     command: sh -c "npm install && npm run build"
     volumes:
       - ./frontend:/app
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
 
   redis:
     volumes:
       - redis-data:/data
+  
+  nginx:
+    image: nginx:latest
+    ports: 
+      - "80:80"
+    volumes:
+      - ./frontend/dist:/usr/share/nginx/html:ro
+    networks:
+      - ng
 
 volumes:
   redis-data:
+
+networks:
+  ng:
+    driver: bridge
