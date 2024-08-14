@@ -2,7 +2,8 @@ services:
   frontend:
     build:
       context: ./frontend
-    command: sh -c "npm install && npm run build"
+      dockerfile: Dockerfile.prod
+    command: sh -c "cat .env && npm install && npm run build"
     volumes:
       - ./frontend:/app
   backend:
@@ -24,6 +25,8 @@ services:
       - ./frontend/dist:/usr/share/nginx/html:ro
     networks:
       - ng
+    depends_on:
+      - frontend
 
   db:
     volumes:

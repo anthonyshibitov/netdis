@@ -5,4 +5,5 @@ export const MenuContext = createContext({
     decompView: true,
     functionView: true,
     cfgView: true,
+    uploadModal: false,
 });

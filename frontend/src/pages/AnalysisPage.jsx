@@ -16,9 +16,18 @@ import MenuBar from "../components/Menubar.jsx";
 const AnalysisPage = () => {
     const { state } = useLocation();
     const [analysisContext, setAnalysisContext] = useState({ "selectedFunction": null });
-    const [menuContext, setMenuContext] = useState({disasmView: true, decompView: true, cfgView: true, functionView: true});
+    const [menuContext, setMenuContext] = useState({
+        disasmView: true, 
+        decompView: true, 
+        cfgView: true, 
+        functionView: true, 
+        uploadModal: false,
+    });
 
-    const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+    const [dimensions, setDimensions] = useState({ 
+        width: window.innerWidth, 
+        height: window.innerHeight 
+    });
 
     useEffect(() => {
         const handleResize = () => {
