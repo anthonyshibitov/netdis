@@ -1,13 +1,8 @@
 # 🪢 netdis 🪢
 ## Web based binary analysis
 
-Implemented via Ghidra
-
-To-do
-
- - Handle EXTERNAL functions ...
- - Address bookmarks
- - Rework frontend to support new operands data format (array of strings)
- - Decompilation view in analysis page? 🤔
-
  ![Netdis user interface](netdis.png)
+
+ Deploy for production:
+ 
+ `docker-compose -f docker-compose.yml -f docker-compose-prod.yml up --build`

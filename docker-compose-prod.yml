@@ -9,6 +9,8 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    env_file:
+      - ./.env.prod
 
   redis:
     volumes:
@@ -23,8 +25,13 @@ services:
     networks:
       - ng
 
+  db:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+
 volumes:
   redis-data:
+  postgres_data:
 
 networks:
   ng:
