@@ -2,6 +2,23 @@ from .models import UploadedFile, Project, Function, Block, Disasm
 from functools import wraps
 from .serializers import FunctionSerializer, BlockSerializer, DisasmSerializer
 import time
+import os
+import shutil
+
+def query_storage():
+    """
+    Check if total storage has been exceeded. If so, delete files until we are below the limit.
+    """
+    max_size = int(os.environ["MAX_STORAGE"])
+    files = UploadedFile.objects.all().order_by('uploaded_at')
+    total_size = sum(file.file.size for file in files)
+    while total_size > max_size:
+        oldest = files.first()
+        if os.path.exists(oldest.file.path):
+            os.remove(oldest.file.path)
+            shutil.rmtree(oldest.file.path + "_ghidra")
+        total_size -= oldest.size
+        oldest.delete()
 
 def get_project_from_hash(hash):
     if UploadedFile.objects.filter(hash = hash).exists():

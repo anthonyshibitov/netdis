@@ -96,7 +96,9 @@ def ghidra_full_disassembly(program, proj_obj_id):
             monitor = TaskMonitor.DUMMY
             currentProgram = flat_api.getCurrentProgram()
             ghidra_functions = currentProgram.getFunctionManager().getFunctions(True)
+            print("NOW THIS IS WHEN INTENSE PORTION STARTS!")
             for f in ghidra_functions:
+                print(f)
                 project = Project.objects.get(pk = proj_obj_id)
                 function_obj = Function(project=project,name=f.getName(), addr=f.getEntryPoint())
                 function_obj.save()

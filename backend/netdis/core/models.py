@@ -9,6 +9,8 @@ class UploadedFile(models.Model):
     hash = models.CharField(max_length=256)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     evict_at = models.DateTimeField(null=True, blank=True)
+    file_size = models.IntegerField()
+
     
 class Project(models.Model):
     file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)

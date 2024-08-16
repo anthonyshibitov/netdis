@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult
 import hashlib
 import json
-from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block
+from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block, query_storage
 from .utils import timer
 from .tasks import primary_analysis, cfg_analysis, decompile_function
 from .serializers import TaskSerializer
@@ -42,7 +42,8 @@ def binary_ingest(request):
             return Response({ "project_id": project.id, "file_id": uploaded_file.id })
         else:
             # Uploaded file does not exist. Upload, analyze, and delete it.
-            uploaded_file = UploadedFile(file=file_obj, hash=hash)
+            query_storage()
+            uploaded_file = UploadedFile(file=file_obj, hash=hash, file_size=file_size)
             uploaded_file.save()
             uploaded_file.evict_at = uploaded_file.uploaded_at + datetime.timedelta(days=2)
             uploaded_file.save()

@@ -98,3 +98,15 @@ def decompile_function_callback(cfg_result, task_id):
     task.object_id = result.id
     task.result = result
     task.save()
+    
+from netdis.core.models import ErrorResult
+from celery.utils.log import get_task_logger
+
+logger = get_task_logger(__name__)
+
+@shared_task
+def test():
+    err = ErrorResult.objects.create(error_message="CRONN")
+    err.save()
+    logger.info("TEST CRON")
+
