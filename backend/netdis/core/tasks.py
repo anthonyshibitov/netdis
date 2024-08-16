@@ -30,6 +30,8 @@ def primary_analysis(file_id, task_id):
     
 @shared_task()
 def primary_analysis_callback(error, task_id, project_id, file_id):
+    print(f"Finished task id {task_id}")
+    print(f"Finished project id {project_id}")
     project = Project.objects.get(pk=project_id)
     if error and 'error' in error:
         # Do some house cleaning..
@@ -46,6 +48,7 @@ def primary_analysis_callback(error, task_id, project_id, file_id):
     task.status = "DONE"
     task.content_type = ContentType.objects.get_for_model(result)
     task.object_id = result.id
+    # task.object_id = project_id
     task.result = result
     task.save()
     

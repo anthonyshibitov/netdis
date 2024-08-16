@@ -66,6 +66,8 @@ def funcs(request):
             project_id = data_dict['project_id']
         except Exception as error:
             return Response(f"ERROR: {error.__str__()}")
+        print("Loading funcs for project_id", project_id)
+        print(get_functions_from_project(project_id))
         return Response(get_functions_from_project(project_id))
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
@@ -97,8 +99,10 @@ def task(request, id):
         if task.status == "DONE":
             match task.task_type:
                 case 'file_upload':
-                    result = FileUploadResult.objects.get(id=task.object_id)
-                    response["result"] = {"project_id": result.project.id}
+                    upload_result = FileUploadResult.objects.get(id=task.object_id)
+                    result = upload_result.project
+                    print(f"POLLING TASK is asking for project id {result.id}")
+                    response["result"] = {"project_id": result.id}
                 case 'cfg_analysis':
                     result = CFGAnalysisResult.objects.get(id=task.object_id)
                     response["result"] = {"json_result": result.json_result}
@@ -108,6 +112,7 @@ def task(request, id):
                 case 'error':
                     result = ErrorResult.objects.get(id=task.object_id)
                     response['result'] = {"error": result.error_message}
+            task.delete()
         return Response(response)
     except Exception as e:
         return Response('Task does not exist', status=status.HTTP_400_BAD_REQUEST)

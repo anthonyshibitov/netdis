@@ -25,7 +25,6 @@ export default function UploadPage() {
         axios.post(url, formData, config).then((response => {
             /* If project_id is null, it is still processing/queued! */
             if(response.data.project_id != null){
-                console.log("THIS IS BAD")
                 console.log(response.data)
                 const file_id = response.data.file_id;
                 const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
@@ -42,10 +41,15 @@ export default function UploadPage() {
                         if(response.data.status == "DONE" && response.data.task_type == "file_upload"){
                             clearInterval(timer);
                             console.log("DONE API RESPONSE")
+                            console.log("Response data for task id", task_id)
                             console.log(response.data);
-                            const file_id = response.data.object_id;
+                            const file_id = response.data.result.project_id;
+                            console.log("Uploaded project id..", file_id)
                             const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-                            axios.post(url, {"project_id": response.data.object_id}).then(response => {
+                            axios.post(url, {"project_id": response.data.result.project_id}).then(response => {
+                                console.log("DONE FUNCS API RESPONSE")
+                                console.log("Response data for project id")
+                                console.log(response.data)
                                 navigate("/analysis", {state: {funcs: response.data, file_id: file_id}});
                             })
                         }
