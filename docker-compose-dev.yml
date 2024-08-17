@@ -7,3 +7,5 @@ services:
   backend:
     env_file:
       - ./.env.dev
+    ports:
+      - "8000:8000"
