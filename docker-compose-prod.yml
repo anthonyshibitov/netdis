@@ -22,6 +22,8 @@ services:
   redis:
     volumes:
       - redis-data:/data
+    networks:
+      - ng
   
   nginx:
     image: nginx:latest
@@ -38,6 +40,8 @@ services:
   db:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    networks:
+     - ng
 
 volumes:
   redis-data:
