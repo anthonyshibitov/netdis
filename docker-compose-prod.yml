@@ -6,6 +6,8 @@ services:
     command: sh -c "npm install && npm run build"
     volumes:
       - ./frontend:/app
+    networks:
+      - ng
   backend:
     build:
       context: ./backend
@@ -14,6 +16,8 @@ services:
       - ./.env.prod
     expose:
       - "8000"
+    networks:
+      - ng
 
   redis:
     volumes:
