@@ -1,0 +1,7 @@
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./maintenance/:/usr/share/nginx/html:ro
