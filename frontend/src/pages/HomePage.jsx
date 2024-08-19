@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import Upload from '../components/Upload';
+import Kofi from '../components/Kofi';
 
 export default function HomePage() {
     console.log(import.meta.env.VITE_BACKEND);
@@ -13,6 +14,7 @@ export default function HomePage() {
 
     return (
         <div>
+            <Kofi />
             <NavBar onUploadClick={toggleModal}/>
             <div className="overflow-x-hidden flex justify-center pt-16">
                 <div className="flex flex-col justify-center items-center gap-20">

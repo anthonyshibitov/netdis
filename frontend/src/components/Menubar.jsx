@@ -2,16 +2,26 @@ import { useContext, useState } from "react";
 import MenuBarItem from "./MenuBarItem";
 import { info } from "autoprefixer";
 import { MenuContext } from "../context/MenuContext";
+import Upload from "./Upload"
+import { useNavigate } from "react-router-dom";
 
 export default function MenuBar() {
+    const navigate = useNavigate();
+    const [showModal, setShowModal] = useState(false);
     const [menuContext, setMenuContext] = useContext(MenuContext);
+
+    function toggleModal(){
+        const currentValue = showModal;
+        setShowModal(!currentValue);
+    }
 
     const fileSubMenu = {
         "Open": function(){
-            console.log("OPEN FUNCTION")
+            toggleModal();
         },
-        "Close": "b",
-        "Quit": "c",
+        "Quit": function(){
+            navigate('/');
+        },
     }
 
     const optionsSubMenu = {
@@ -76,6 +86,19 @@ export default function MenuBar() {
             <MenuBarItem name="Windows"
                 subMenu={windowsSubmenu}
             />
+            {showModal && (
+                <div className="z-50 fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+                    <div className="bg-white p-4 rounded flex flex-col">
+                        <Upload callback={toggleModal}/>
+                        <button 
+                            className="mt-4 text-red-500"
+                            onClick={toggleModal}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

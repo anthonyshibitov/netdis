@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export default function UploadPage() {
+export default function UploadPage(props) {
     const [status, setStatus] = useState("");
     const navigate = useNavigate();
+    const callbackFunction = props.callback;
 
     function handleChange(event){
         const file = event.target.files[0];
@@ -29,7 +30,8 @@ export default function UploadPage() {
                 const file_id = response.data.file_id;
                 const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
                 axios.post(url, {"project_id": response.data.project_id}).then(response => {
-                    navigate("/analysis", {state: {funcs: response.data, file_id: file_id}});
+                    callbackFunction ? callbackFunction(): '';
+                    navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                 })
             } else {
                 setStatus("File queued...");
@@ -50,7 +52,8 @@ export default function UploadPage() {
                                 console.log("DONE FUNCS API RESPONSE")
                                 console.log("Response data for project id")
                                 console.log(response.data)
-                                navigate("/analysis", {state: {funcs: response.data, file_id: file_id}});
+                                callbackFunction ? callbackFunction() : '';
+                                navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                             })
                         }
                         if(response.data.status == "DONE" && response.data.task_type == "error"){

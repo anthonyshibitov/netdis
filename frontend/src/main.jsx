@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import HomePage from './pages/HomePage.jsx'
 import ErrorPage from './pages/ErrorPage.jsx'
 import AnalysisPage from './pages/AnalysisPage.jsx'
+import InfoPage from './pages/InfoPage.jsx'
 import './index.css'
 
 import {
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/info',
-    element: <h1>about</h1>
+    element: <InfoPage />
   },
   {
     path: '/analysis',
