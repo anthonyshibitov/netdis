@@ -29,11 +29,6 @@ export default function MenuBar() {
         "Highlight": "b",
     }
 
-    const infoSubmenu = {
-        "About": "a",
-        "Github Repo": "b",
-    }
-
     const windowsSubmenu = {
         "Disassembly": function(){
             if(menuContext.disasmView){
@@ -65,10 +60,15 @@ export default function MenuBar() {
         },
     }
 
-    function openMenu(menu){
-        for(const m in menu){
-            console.log(m);
-        }
+    const helpSubmenu = {
+        "About": function(){
+            const win = window.open('/info', '_blank');
+            win.focus();
+        },
+        "Github Repo": function(){
+            const win = window.open('https://github.com/anthonyshibitov/netdis', '_blank');
+            win.focus();
+        },
     }
     
     return (
@@ -80,11 +80,11 @@ export default function MenuBar() {
             <MenuBarItem name="Options" 
                 subMenu={optionsSubMenu}
             />
-            <MenuBarItem name="Info" 
-                subMenu={infoSubmenu}
-            />
             <MenuBarItem name="Windows"
                 subMenu={windowsSubmenu}
+            />
+            <MenuBarItem name="Help" 
+                subMenu={helpSubmenu}
             />
             {showModal && (
                 <div className="z-50 fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">

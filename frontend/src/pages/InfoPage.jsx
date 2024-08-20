@@ -24,15 +24,18 @@ export default function InfoPage() {
                     <div className="text-2xl font-bold">
                         About
                     </div>
-                    <div className="max-w-lg">
-                        Netdis is an online disassembler which uses Ghidra. It currently offers disassembly, decompilation, and function control flow graphing, with more features planned. If you'd like to contribute to the project, please visit the github repo link! Any and all contributions are welcome :)
+                    <div className="max-w-lg flex flex-col items-center gap-5">
+                        <p>
+                            Netdis is an online disassembler which uses Ghidra. It currently offers disassembly, decompilation, and function control flow graphing, with more features planned. If you'd like to contribute to the project, please visit the <a className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="https://github.com/anthonyshibitov/netdis" target="_blank" rel="noopener noreferrer">github repo link!</a> Any and all contributions are welcome :)
+                        </p>
                     </div>
                     <div className="text-2xl font-bold">
                         Donations
                     </div>
                     <div className="max-w-lg">
-                        I'm currently running this on a server out of pocket. There are no paid features, advertising, or sponsorships supporting this project. If you'd like to toss me a couple bucks, there's a Ko-fi widget on the bottom left. Your support will be greatly appreciated!! (don't worry, the widget doesn't show up on the analysis page)
+                        I'm currently running this on a server out of pocket. There are no paid features, advertising, or sponsorships supporting this project. If you'd like to toss me a couple bucks, there's a Ko-fi widget on the bottom left. Your support will be greatly appreciated, and will go directly to paying server costs/possible upgrading to increase analysis speeds! (don't worry, the widget doesn't show up on the analysis page)
                     </div>
+                    <div></div>
                 </div>
             </div>
 

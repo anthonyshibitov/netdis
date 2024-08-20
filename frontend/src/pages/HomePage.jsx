@@ -28,17 +28,17 @@ export default function HomePage() {
                     </div>
                     <div className="shadow-xl w-screen bg-cover h-96 flex flex-row justify-center items-center gap-16 bg-[url('/graph_skew_dark.png')] text-xl text-white">
                         <div className="w-96 text-justify drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-                            netdis is an online and open-source binary analysis platform based on the Ghidra suite of tools. simply upload a file and analyze it.
+                            netdis is an online and open-source binary analysis platform based on the Ghidra suite of tools. simply upload a file and analyze it - all within your browser.
                         </div>
                         <div className="w-96 text-justify drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
-                            <p>netdis supports full binary disassembly and function control flow graph recovery. many features upcoming, stay tuned 🕵️‍♂️</p>
+                            <p>netdis supports full binary disassembly, decompilation, and function control flow graph recovery. many features upcoming, stay tuned 🕵️‍♂️</p>
                         </div>
                     </div>
                     <div className="">
                         <button className="text-xl px-6 py-3 text-white bg-ndblue rounded-md hover:ring-2" onClick={toggleModal}>Upload</button>
                     </div>
                     <div className="flex flex-row gap-8 mb-32 justify-center">
-                        <p>Like what you see? Have suggestions? Fork this repo!</p>
+                        <p>Like what you see? Have suggestions? Is my code unbearably bad? Fork this repo!</p>
                         <iframe src="https://ghbtns.com/github-btn.html?user=anthonyshibitov&repo=netdis&type=fork&count=true&size=large" frameBorder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
                     </div>
                 </div>

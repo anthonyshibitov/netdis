@@ -86,6 +86,7 @@ export default function UploadPage(props) {
             <div className="p-2">
                 {status}
             </div>
+            <div className="text-slate-400 italic text-xs">(2mb file upload limit)</div>
         </div>
     )
 }
