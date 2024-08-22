@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import Upload from '../components/Upload';
-import Kofi from '../components/Kofi';
 
 export default function InfoPage() {
     console.log(import.meta.env.VITE_BACKEND);
@@ -14,7 +13,6 @@ export default function InfoPage() {
 
     return (
         <div>
-            <Kofi />
             <NavBar onUploadClick={toggleModal}/>
             <div className="overflow-x-hidden flex justify-center pt-16">
                 <div className="flex flex-col justify-center items-center gap-20">
@@ -33,7 +31,10 @@ export default function InfoPage() {
                         Donations
                     </div>
                     <div className="max-w-lg">
-                        I'm currently running this on a server out of pocket. There are no paid features, advertising, or sponsorships supporting this project. If you'd like to toss me a couple bucks, there's a Ko-fi widget on the bottom left. Your support will be greatly appreciated, and will go directly to paying server costs/possible upgrading to increase analysis speeds! (don't worry, the widget doesn't show up on the analysis page)
+                        I'm currently running this on a server out of pocket. There are no paid features, advertising, or sponsorships supporting this project. If you'd like to toss me a couple bucks, considering donating via my Ko-fi. Your support will be greatly appreciated, and will go directly to paying server costs/possible upgrading to increase analysis speeds! (don't worry, the widget doesn't show up on the analysis page)
+                    </div>
+                    <div>
+                    <a href='https://ko-fi.com/E1E5123B6L' target='_blank'><img height='36' style={{border: "0px", height: "36px"}} src='https://storage.ko-fi.com/cdn/kofi5.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
                     </div>
                     <div></div>
                 </div>

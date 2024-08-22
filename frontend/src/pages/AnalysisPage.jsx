@@ -35,6 +35,7 @@ const AnalysisPage = () => {
         };
 
         window.addEventListener('resize', handleResize);
+        // window.location.reload();
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import Upload from '../components/Upload';
-import Kofi from '../components/Kofi';
 
 export default function HomePage() {
     console.log(import.meta.env.VITE_BACKEND);
@@ -14,7 +13,6 @@ export default function HomePage() {
 
     return (
         <div>
-            <Kofi />
             <NavBar onUploadClick={toggleModal}/>
             <div className="overflow-x-hidden flex justify-center pt-16">
                 <div className="flex flex-col justify-center items-center gap-20">
@@ -37,10 +35,11 @@ export default function HomePage() {
                     <div className="">
                         <button className="text-xl px-6 py-3 text-white bg-ndblue rounded-md hover:ring-2" onClick={toggleModal}>Upload</button>
                     </div>
-                    <div className="flex flex-row gap-8 mb-32 justify-center">
+                    <div className="flex flex-row gap-8 justify-center">
                         <p>Like what you see? Have suggestions? Is my code unbearably bad? Fork this repo!</p>
                         <iframe src="https://ghbtns.com/github-btn.html?user=anthonyshibitov&repo=netdis&type=fork&count=true&size=large" frameBorder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
                     </div>
+                    <a className="mb-32" href='https://ko-fi.com/E1E5123B6L' target='_blank'><img height='36' style={{border: "0px", height: "36px"}} src='https://storage.ko-fi.com/cdn/kofi5.png?v=3' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
                 </div>
             </div>
 
