@@ -12,6 +12,7 @@ from .utils import timer
 from .tasks import primary_analysis, cfg_analysis, decompile_function
 from .serializers import TaskSerializer
 import datetime
+import os
 
 @api_view(['GET'])
 def test_view(request):
@@ -28,8 +29,8 @@ def binary_ingest(request):
         contents = file_obj.read()
         hash = hashlib.sha256(contents).hexdigest()
         file_obj.name = hash
-        
-        if(file_size > 5242880):
+        max_file_size = int(os.environ.get("MAX_FILE_SIZE"))
+        if(file_size > max_file_size):
             # Reject if file is over 5mb
             return Response({"error": "File too large", "error_info": file_size}, status=status.HTTP_400_BAD_REQUEST)
                 

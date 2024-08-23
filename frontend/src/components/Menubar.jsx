@@ -24,10 +24,10 @@ export default function MenuBar() {
         },
     }
 
-    const optionsSubMenu = {
-        "Auto-analyze": "a",
-        "Highlight": "b",
-    }
+    // const optionsSubMenu = {
+    //     "Auto-analyze": "a",
+    //     "Highlight": "b",
+    // }
 
     const windowsSubmenu = {
         "Disassembly": function(){
@@ -77,9 +77,9 @@ export default function MenuBar() {
             <MenuBarItem name="File"
                 subMenu={fileSubMenu}
             />
-            <MenuBarItem name="Options" 
+            {/* <MenuBarItem name="Options" 
                 subMenu={optionsSubMenu}
-            />
+            /> */}
             <MenuBarItem name="Windows"
                 subMenu={windowsSubmenu}
             />
