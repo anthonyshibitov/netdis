@@ -12,6 +12,7 @@ import "react-resizable/css/styles.css";
 import { NodeSizeProvider } from "../context/NodeSizeContext.jsx";
 import Decompilation from "../components/Decompilation.jsx";
 import MenuBar from "../components/Menubar.jsx";
+import RawHex from "../components/RawHex.jsx";
 
 const AnalysisPage = () => {
     const { state } = useLocation();
@@ -86,6 +87,10 @@ const AnalysisPage = () => {
                         <Decompilation />
                     </div>
                     }
+                    <div key="e">
+                        <div className="draggable-handle">Raw Hex</div>
+                        <RawHex />
+                    </div>
                 </GridLayout>
             </MenuContext.Provider>
         </AnalysisContext.Provider>

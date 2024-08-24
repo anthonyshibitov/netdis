@@ -86,9 +86,24 @@ def blocks(request):
 @api_view(['POST'])
 def disasms(request):
     if(request.body):
-        data_dict = json.loads(request.body.decode("utf-8"))
+        try:
+            data_dict = json.loads(request.body.decode("utf-8"))
+        except Exception as error:
+            return Response(error)
         block_id = data_dict['block_id']
         return Response(get_disasm_from_block(block_id))
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def raw(request):
+    if(request.body):
+        try:
+            data_dict = json.loads(request.body.decode("utf-8"))
+        except Exception as error:
+            return Response(error)
+        address = data_dict['address']
+        print(f"Looking for address {address}")
+        return(status.HTTP_200_OK)
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
