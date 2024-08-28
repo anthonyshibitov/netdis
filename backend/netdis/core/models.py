@@ -54,3 +54,6 @@ class DecompAnalysisResult(models.Model):
     
 class ErrorResult(models.Model):
     error_message = models.TextField(null=True, blank=True)
+    
+class RawHexResult(models.Model):
+    raw_hex = models.TextField(null=True, blank=True)

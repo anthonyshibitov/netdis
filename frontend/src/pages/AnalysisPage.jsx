@@ -89,7 +89,7 @@ const AnalysisPage = () => {
                     }
                     <div key="e">
                         <div className="draggable-handle">Raw Hex</div>
-                        <RawHex />
+                        <RawHex rawhexProps={state}/>
                     </div>
                 </GridLayout>
             </MenuContext.Provider>

@@ -2,9 +2,35 @@ import pyhidra
 from ..models import Task, UploadedFile, Project, Function, Block, Disasm, CFGAnalysisResult, FileUploadResult
 from django.contrib.contenttypes.models import ContentType
 from celery import shared_task
+import base64
 
 # This is for local dev
 # os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
+
+@shared_task()
+def ghidra_get_rawhex(program, address, length):
+    try:
+        with pyhidra.open_program(program) as flat_api:
+            from ghidra.program.model.address import Address
+            currentProgram = flat_api.getCurrentProgram()
+            
+            address_factory = currentProgram.getAddressFactory()
+            address = address_factory.getAddress(address)
+            memory = currentProgram.getMemory()
+            if memory.contains(address):
+                # byte_array = bytearray(length)
+                #byte_array = [None] * length
+                byte_array = {}
+                for byte in range(length):
+                    #byte_array.insert(byte, memory.getByte(address) & 0xFF)
+                    #byte_array[byte] = format(memory.getByte(address) & 0xFF, '02x')
+                    byte_array[str(address)] = format(memory.getByte(address) & 0xFF, '02x')
+                    address = address.add(1)
+                return byte_array
+            else:
+                return {"error": "Invalid address"}
+    except Exception as e:
+        return {"error": e.toString()}
 
 @shared_task()
 def ghidra_decompile_func(program, func_id):

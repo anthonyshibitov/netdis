@@ -4,12 +4,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 # from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult
 import hashlib
 import json
 from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block, query_storage
 from .utils import timer
-from .tasks import primary_analysis, cfg_analysis, decompile_function
+from .tasks import primary_analysis, cfg_analysis, decompile_function, get_rawhex
 from .serializers import TaskSerializer
 import datetime
 import os
@@ -125,6 +125,10 @@ def task(request, id):
                 case 'decomp_func':
                     result = DecompAnalysisResult.objects.get(id=task.object_id)
                     response['result'] = {"decomp_result": result.decomp_result}
+                case 'raw_request':
+                    print("DONEZO")
+                    result = RawHexResult.objects.get(id=task.object_id)
+                    response['result'] = {"rawhex": result.raw_hex}
                 case 'error':
                     result = ErrorResult.objects.get(id=task.object_id)
                     response['result'] = {"error": result.error_message}
@@ -154,5 +158,19 @@ def decomp_func(request):
         task = Task.objects.create(task_type='decomp_func')
         task.save()
         decompile_function(file_id, func_id, task.id)
+        return Response({"task_id": task.id, "status": task.status})
+    return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def rawhex(request):
+    if(request.body):
+        data_dict = json.loads(request.body.decode("utf-8"))
+        file_id = data_dict['file_id']
+        address = data_dict['address']
+        length = data_dict['length']
+        task = Task.objects.create(task_type='raw_request')
+        task.save()
+        print(f"Address: {address}, length: {length}, file id {file_id}")
+        get_rawhex(file_id, task.id, address, length)
         return Response({"task_id": task.id, "status": task.status})
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)

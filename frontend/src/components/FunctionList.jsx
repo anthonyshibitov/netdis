@@ -87,6 +87,7 @@ export default function FunctionList(props) {
                     console.log(response);
                     if(response.data.status == "DONE" && response.data.task_type == "decomp_func"){
                         clearInterval(timer);
+                        console.log(response)
                         const decomp_result = response.data.result.decomp_result;
                         setAnalysisContext({...analysisContext, decomp: decomp_result})
                         console.log(decomp_result)

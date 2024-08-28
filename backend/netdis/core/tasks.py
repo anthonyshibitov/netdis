@@ -1,10 +1,10 @@
 # Celery tasks
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult
 from celery import shared_task
 from .utils import timer
 import subprocess
 import os
-from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func
+from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func, ghidra_get_rawhex
 from django.contrib.contenttypes.models import ContentType
 
 def primary_analysis(file_id, task_id):
@@ -77,6 +77,35 @@ def cfg_analysis_callback(cfg_result, task_id):
     task.object_id = result.id
     task.result = result
     task.save()
+        
+def get_rawhex(file_id, task_id, address, length):
+    task = Task.objects.get(pk=task_id)
+    task.status = "ACTIVE"
+    task.save()
+    file = UploadedFile.objects.get(pk=file_id)
+    file_path = "./media/" + file.file.name
+    ghidra_get_rawhex.apply_async(args=(file_path, address, length), link=get_rawhex_callback.s(task.id))
+
+@shared_task()
+def get_rawhex_callback(rawhex_result, task_id):
+    print("RAW HEX CALLBACK CALLED")
+    print(rawhex_result)
+    if 'error' in rawhex_result:
+        result = ErrorResult.objects.create(error_message = rawhex_result)
+    else:
+        result = RawHexResult.objects.create(raw_hex = rawhex_result)
+    result.save()
+    task = Task.objects.get(id=task_id)
+    if 'error' in rawhex_result:
+        task.task_type = "error"
+    task.status = "DONE"
+    task.content_type = ContentType.objects.get_for_model(result)
+    task.object_id = result.id
+    task.result = result
+    print("RESULT")
+    print(result)
+    task.save()
+
     
 def decompile_function(file_id, func_id, task_id):
     task = Task.objects.get(pk=task_id)
