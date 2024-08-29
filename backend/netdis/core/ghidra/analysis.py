@@ -17,14 +17,15 @@ def ghidra_get_rawhex(program, address, length):
             address_factory = currentProgram.getAddressFactory()
             address = address_factory.getAddress(address)
             memory = currentProgram.getMemory()
+            if length > 128:
+                return {"error": "Invalid size"}
             if memory.contains(address):
-                # byte_array = bytearray(length)
-                #byte_array = [None] * length
                 byte_array = {}
                 for byte in range(length):
-                    #byte_array.insert(byte, memory.getByte(address) & 0xFF)
-                    #byte_array[byte] = format(memory.getByte(address) & 0xFF, '02x')
-                    byte_array[str(address)] = format(memory.getByte(address) & 0xFF, '02x')
+                    try:
+                        byte_array[str(address)] = format(memory.getByte(address) & 0xFF, '02x')
+                    except:
+                        pass
                     address = address.add(1)
                 return byte_array
             else:

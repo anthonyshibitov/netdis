@@ -84,12 +84,10 @@ def get_rawhex(file_id, task_id, address, length):
     task.save()
     file = UploadedFile.objects.get(pk=file_id)
     file_path = "./media/" + file.file.name
-    ghidra_get_rawhex.apply_async(args=(file_path, address, length), link=get_rawhex_callback.s(task.id))
+    ghidra_get_rawhex.apply_async(args=(file_path, address, int(length)), link=get_rawhex_callback.s(task.id))
 
 @shared_task()
 def get_rawhex_callback(rawhex_result, task_id):
-    print("RAW HEX CALLBACK CALLED")
-    print(rawhex_result)
     if 'error' in rawhex_result:
         result = ErrorResult.objects.create(error_message = rawhex_result)
     else:
@@ -102,8 +100,6 @@ def get_rawhex_callback(rawhex_result, task_id):
     task.content_type = ContentType.objects.get_for_model(result)
     task.object_id = result.id
     task.result = result
-    print("RESULT")
-    print(result)
     task.save()
 
     
