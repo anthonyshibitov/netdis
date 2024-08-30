@@ -58,6 +58,13 @@ export default function MenuBar() {
                 setMenuContext({...menuContext, functionView: true})
             }
         },
+        "Raw Hex Viewer": function(){
+            if(menuContext.rawView){
+                setMenuContext({...menuContext, rawView: false})
+            } else {
+                setMenuContext({...menuContext, rawView: true})
+            }
+        }
     }
 
     const helpSubmenu = {

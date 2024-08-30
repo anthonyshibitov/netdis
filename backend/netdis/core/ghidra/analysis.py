@@ -25,7 +25,7 @@ def ghidra_get_rawhex(program, address, length):
                     try:
                         byte_array[str(address)] = format(memory.getByte(address) & 0xFF, '02x')
                     except:
-                        pass
+                        byte_array[str(address)] = "??"
                     address = address.add(1)
                 return byte_array
             else:

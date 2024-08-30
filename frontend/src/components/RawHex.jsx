@@ -19,11 +19,19 @@ export default function RawHex(props) {
             const timer = setInterval(() => {
                 const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
                 const resp = axios.get(url).then((response => {
+                    console.log(response.data)
                     if(response.data.status == "DONE" && response.data.task_type == "raw_request"){
                         let result = response.data.result.rawhex
                         result = result.replace(/'/g, '"');
                         result = JSON.parse(result)
                         setData(result);
+                        clearInterval(timer);                        
+                    }
+                    if(response.data.status == "DONE" && response.data.task_type == "error"){
+                        let result = response.data.result.error
+                        result = result.replace(/'/g, '"');
+                        result = JSON.parse(result)
+                        setData(result.error)
                         clearInterval(timer);                        
                     }
                 }))
@@ -34,7 +42,7 @@ export default function RawHex(props) {
     return (
         <div className="text-xs font-mono flex flex-col component-wrapper">
             <div className="flex">
-                <input className="grow border border-black" type="text" onChange={handleChange} />
+                <input className="grow border border-black" type="text" onChange={handleChange} onFocus={e => e.target.select()} />
                 <select name="size" id="size" onChange={e => setSize(e.target.value)} value={size}>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -51,9 +59,9 @@ export default function RawHex(props) {
             <div className="">
                 {data && 
                     Object.entries(data).map(([address, value], i) => (
-                        <span>
-                            {i % 8 === 0 && <span>&#10;&#13;{address}:&nbsp;</span>}
-                            <span>{value}&nbsp;</span>
+                        <span key={i}>
+                            {i % 8 === 0 && <span className="text-ndblue">&#10;&#13;{address}:&nbsp;</span>}
+                            <span className={value === "??" ? "bg-red-300" : ""}>{value}&nbsp;</span>
                         </span>
                     ))
                 }
