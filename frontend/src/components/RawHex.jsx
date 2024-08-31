@@ -6,12 +6,14 @@ export default function RawHex(props) {
     const [address, setAddress] = useState();
     const [size, setSize] = useState("1");
     const [data, setData] = useState();
+    const [error, setError] = useState();
     function handleChange(event){
         const newAddress = event.target.value;
         setAddress(newAddress);
     }
 
-    function sendAddressRequest(){
+    function sendAddressRequest(e){
+        e.preventDefault();
         const url = import.meta.env.VITE_BACKEND + 'api/rawhex/';
         axios.post(url, { "file_id": file_id, "address": address, "length": size })
         .then(response => {
@@ -25,13 +27,15 @@ export default function RawHex(props) {
                         result = result.replace(/'/g, '"');
                         result = JSON.parse(result)
                         setData(result);
+                        setError();
                         clearInterval(timer);                        
                     }
                     if(response.data.status == "DONE" && response.data.task_type == "error"){
                         let result = response.data.result.error
                         result = result.replace(/'/g, '"');
                         result = JSON.parse(result)
-                        setData(result.error)
+                        setError(result.error);
+                        setData();
                         clearInterval(timer);                        
                     }
                 }))
@@ -40,9 +44,11 @@ export default function RawHex(props) {
     }
 
     return (
-        <div className="text-xs font-mono flex flex-col component-wrapper">
-            <div className="flex">
+        <div className="text-xs font-mono flex flex-col component-wrapper p-1">
+            <form className="flex items-center" onSubmit={(e => sendAddressRequest(e))}>
+                <span className="px-1">Addr</span>
                 <input className="grow border border-black" type="text" onChange={handleChange} onFocus={e => e.target.select()} />
+                <span className="px-1">Size</span>
                 <select name="size" id="size" onChange={e => setSize(e.target.value)} value={size}>
                     <option value="1">1</option>
                     <option value="2">2</option>
@@ -54,8 +60,8 @@ export default function RawHex(props) {
                     <option value="128">128</option>
 
                 </select>
-                <button className="grow-0 px-1 border-2 bg-ndblue text-white" onClick={sendAddressRequest}>View</button>
-            </div>
+                <button type="submit" className="grow-0 px-1 border-2 bg-ndblue text-white" onClick={( e => sendAddressRequest(e))}>View</button>
+            </form>
             <div className="">
                 {data && 
                     Object.entries(data).map(([address, value], i) => (
@@ -65,6 +71,9 @@ export default function RawHex(props) {
                         </span>
                     ))
                 }
+                {error && (
+                    <div className="p-1">{error}</div>
+                )}
             </div>
         </div>
     )

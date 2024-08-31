@@ -46,7 +46,7 @@ const AnalysisPage = () => {
         { i: "b", x: 6, y: 5, w: 6, h: 5, minW: 3, minH: 3 },
         { i: "c", x: 0, y: 0, w: 6, h: 5, minW: 3, minH: 3 },
         { i: "d", x: 0, y: 5, w: 6, h: 5, minW: 3, minH: 3 },
-        { i: "e", x: 0, y: 8, w: 3, h: 1, minW: 3, minH: 1 }
+        { i: "e", x: 0, y: 8, w: 4, h: 3, minW: 4, minH: 3 }
     ];
 
     return (
@@ -56,8 +56,8 @@ const AnalysisPage = () => {
                 <GridLayout
                     className="layout"
                     layout={layout}
-                    cols={12}
-                    rowHeight={Math.floor(dimensions.height / 12)}
+                    cols={20}
+                    rowHeight={Math.floor(dimensions.height / 20)}
                     width={dimensions.width}
                     isDraggable={true}
                     isResizable={true}
