@@ -42,11 +42,11 @@ const AnalysisPage = () => {
     }, []);
 
     const layout = [
-        { i: "a", x: 6, y: 0, w: 6, h: 5, minW: 3, minH: 3 },
-        { i: "b", x: 6, y: 5, w: 6, h: 5, minW: 3, minH: 3 },
-        { i: "c", x: 0, y: 0, w: 6, h: 5, minW: 3, minH: 3 },
-        { i: "d", x: 0, y: 5, w: 6, h: 5, minW: 3, minH: 3 },
-        { i: "e", x: 0, y: 8, w: 4, h: 3, minW: 4, minH: 3 }
+        { i: "funcs",  x: 10, y: 0, w: 6, h: 8, minW: 3, minH: 3 },
+        { i: "disasm", x: 10, y: 9, w: 10, h: 8, minW: 3, minH: 3 },
+        { i: "cfg",    x: 0, y: 0, w: 10, h: 8, minW: 3, minH: 3 },
+        { i: "decomp", x: 0, y: 9, w: 10, h: 8, minW: 3, minH: 3 },
+        { i: "hex",    x: 16, y: 0, w: 4, h: 8, minW: 4, minH: 3 }
     ];
 
     return (
@@ -64,19 +64,19 @@ const AnalysisPage = () => {
                     draggableHandle=".draggable-handle"
                 >
                     {menuContext.functionView &&
-                    <div key="a">
+                    <div key="funcs">
                         <div className="draggable-handle">Functions</div>
                         <FunctionList functionListProps={state} />
                     </div>
                     }
                     {menuContext.disasmView &&
-                    <div key="b">
+                    <div key="disasm">
                         <div className="draggable-handle">Disassembly</div>
                         <Listing />
                     </div>
                     }
                     {menuContext.cfgView &&
-                    <div key="c">
+                    <div key="cfg">
                         <div className="draggable-handle">Control Flow Graph</div>
                         <NodeSizeProvider>
                             <Graph />
@@ -84,13 +84,13 @@ const AnalysisPage = () => {
                     </div>
                     }
                     {menuContext.decompView && 
-                    <div key="d">
+                    <div key="decomp">
                         <div className="draggable-handle">Decompilation</div>
                         <Decompilation />
                     </div>
                     }
                     {menuContext.rawView &&
-                    <div key="e">
+                    <div key="hex">
                         <div className="draggable-handle">Raw Hex</div>
                         <RawHex rawhexProps={state}/>
                     </div>

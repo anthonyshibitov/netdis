@@ -47,7 +47,7 @@ export default function RawHex(props) {
         <div className="text-xs font-mono flex flex-col component-wrapper p-1">
             <form className="flex items-center" onSubmit={(e => sendAddressRequest(e))}>
                 <span className="px-1">Addr</span>
-                <input className="grow border border-black" type="text" onChange={handleChange} onFocus={e => e.target.select()} />
+                <input className="grow border border-black min-w-0" type="text" onChange={handleChange} onFocus={e => e.target.select()} />
                 <span className="px-1">Size</span>
                 <select name="size" id="size" onChange={e => setSize(e.target.value)} value={size}>
                     <option value="1">1</option>
