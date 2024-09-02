@@ -1,10 +1,10 @@
 # Celery tasks
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult
 from celery import shared_task
 from .utils import timer
 import subprocess
 import os
-from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func, ghidra_get_rawhex
+from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func, ghidra_get_rawhex, ghidra_get_strings
 from django.contrib.contenttypes.models import ContentType
 
 def primary_analysis(file_id, task_id):
@@ -121,6 +121,30 @@ def decompile_function_callback(cfg_result, task_id):
     result.save()
     task = Task.objects.get(id=task_id)
     if 'error' in cfg_result:
+        task.task_type = "error"
+    task.status = "DONE"
+    task.content_type = ContentType.objects.get_for_model(result)
+    task.object_id = result.id
+    task.result = result
+    task.save()
+    
+def get_strings(file_id, task_id):
+    task = Task.objects.get(pk=task_id)
+    task.status = "ACTIVE"
+    task.save()
+    file = UploadedFile.objects.get(pk=file_id)
+    file_path = "./media/" + file.file.name
+    ghidra_get_strings.apply_async(args=(file_path,), link=get_strings_callback.s(task.id))
+    
+@shared_task()
+def get_strings_callback(strings_result, task_id):
+    if 'error' in strings_result:
+        result = ErrorResult.objects.create(error_message = strings_result)
+    else:
+        result = StringsResult.objects.create(strings = strings_result)
+    result.save()
+    task = Task.objects.get(id=task_id)
+    if 'error' in strings_result:
         task.task_type = "error"
     task.status = "DONE"
     task.content_type = ContentType.objects.get_for_model(result)

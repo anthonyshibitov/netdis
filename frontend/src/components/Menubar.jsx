@@ -64,6 +64,13 @@ export default function MenuBar() {
             } else {
                 setMenuContext({...menuContext, rawView: true})
             }
+        },
+        "Strings": function(){
+            if(menuContext.stringsView){
+                setMenuContext({...menuContext, stringsView: false})
+            } else {
+                setMenuContext({...menuContext, stringsView: true})
+            }
         }
     }
 

@@ -13,6 +13,7 @@ import { NodeSizeProvider } from "../context/NodeSizeContext.jsx";
 import Decompilation from "../components/Decompilation.jsx";
 import MenuBar from "../components/Menubar.jsx";
 import RawHex from "../components/RawHex.jsx";
+import Strings from "../components/Strings.jsx";
 
 const AnalysisPage = () => {
     const { state } = useLocation();
@@ -23,6 +24,7 @@ const AnalysisPage = () => {
         cfgView: true, 
         functionView: true, 
         rawView: true,
+        stringsView: false,
         uploadModal: false,
     });
 
@@ -93,6 +95,12 @@ const AnalysisPage = () => {
                     <div key="hex">
                         <div className="draggable-handle">Raw Hex</div>
                         <RawHex rawhexProps={state}/>
+                    </div>
+                    }
+                    {menuContext.stringsView && 
+                    <div key="strings">
+                        <div className="draggable-handle">Strings</div>
+                        <Strings stringsProps={state}/>
                     </div>
                     }
                 </GridLayout>

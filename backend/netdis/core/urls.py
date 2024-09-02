@@ -14,6 +14,7 @@ urlpatterns = [
     path('func_graph/', func_graph, name='func_graph'),
     path('decomp_func/', decomp_func, name='decomp_func'),
     path('rawhex/', rawhex, name='rawhex'),
+    path('strings/', strings, name='strings'),
     
     path('proj/', test_view, name='proj'),
     path('func/', test_view, name='func'),

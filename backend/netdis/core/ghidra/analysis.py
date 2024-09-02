@@ -8,6 +8,22 @@ import base64
 # os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
 
 @shared_task()
+def ghidra_get_strings(program):
+    try:
+        with pyhidra.open_program(program) as flat_api:
+            currentProgram = flat_api.getCurrentProgram()
+            memory = currentProgram.getMemory()
+            strings = flat_api.findStrings(None, 4, 1, True, True)
+            json_strings = {}
+            for string in strings:
+                current_string = string.getString(memory)
+                json_strings[string.getAddress().toString()] = repr(current_string)
+            return json_strings
+                
+    except Exception as e:
+        return {"error": e.toString()}
+
+@shared_task()
 def ghidra_get_rawhex(program, address, length):
     try:
         with pyhidra.open_program(program) as flat_api:

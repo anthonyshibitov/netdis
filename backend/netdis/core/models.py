@@ -57,3 +57,6 @@ class ErrorResult(models.Model):
     
 class RawHexResult(models.Model):
     raw_hex = models.TextField(null=True, blank=True)
+    
+class StringsResult(models.Model):
+    strings = models.JSONField()
