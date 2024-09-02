@@ -116,7 +116,10 @@ def ghidra_function_cfg(program, func_id):
     return cfg_result
 
 @shared_task()
-def ghidra_full_disassembly(program, proj_obj_id):
+def ghidra_full_disassembly(task_id, program, proj_obj_id):
+    task = Task.objects.get(pk=task_id)
+    task.status = 'PROCESSING'
+    task.save()
     try:
         with pyhidra.open_program(program) as flat_api:
             from ghidra.util.task import TaskMonitor

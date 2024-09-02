@@ -14,6 +14,7 @@ export default function UploadPage(props) {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('fileName', file.name);
+        let timeProcessing = 0;
         const config = {
             headers: {
                 'content-type': 'multipart/form-data'
@@ -56,6 +57,10 @@ export default function UploadPage(props) {
                                 navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                             })
                         }
+                        if(response.data.status == "PROCESSING"){
+                            setStatus(`Processing. Time elapsed: ${timeProcessing}s`);
+                            timeProcessing += 1;
+                        }
                         if(response.data.status == "DONE" && response.data.task_type == "error"){
                             let result = response.data.result.error;
                             // Pesky single quotes!
@@ -83,7 +88,7 @@ export default function UploadPage(props) {
         <div className="flex flex-col justify-center items-center p-4">
             <label htmlFor="file-upload" className="cursor-pointer m-4 px-6 py-3 hover:ring-2 text-white bg-ndblue rounded-md">Select file</label>
             <input id="file-upload" type="file" className="hidden" onChange={handleChange}/>
-            <div className="p-2">
+            <div className="p-2 font-mono">
                 {status}
             </div>
             <div className="text-slate-400 italic text-xs">(2mb file upload limit)</div>
