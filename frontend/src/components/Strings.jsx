@@ -4,7 +4,6 @@ import { jsx } from "react/jsx-runtime";
 
 export default function Strings(props) {
     const file_id = props.stringsProps.file_id;
-    const [strings, setStrings] = useState();
     const [error, setError] = useState();
     const [data, setData] = useState();
 
@@ -18,25 +17,18 @@ export default function Strings(props) {
                 const resp = axios.get(url).then((response => {
                     console.log(response.data)
                     if(response.data.status == "DONE" && response.data.task_type == "strings"){
-                        let result = response.data.result.strings
-                        // result = result.replace(/'/g, '"');
-                        // result = JSON.parse(result)
-                        // console.log(result);
-                        // setData(result);
+                        const result = response.data.result.strings
                         const jsxResult = Object.entries(result).map(([key, index]) => {
                             return (
                                 <div key={index}><span className="text-ndblue">{key}</span>: {result[key]}</div>
                             )
                         })
-                        console.log(jsxResult)
                         setData(jsxResult);
                         setError();
                         clearInterval(timer);   
                     }
                     if(response.data.status == "DONE" && response.data.task_type == "error"){
-                        let result = response.data.result.error
-                        // result = result.replace(/'/g, '"');
-                        // result = JSON.parse(result)
+                        const result = response.data.result.error
                         setError(result.error);
                         setData();
                         clearInterval(timer);                        

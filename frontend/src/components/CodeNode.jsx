@@ -11,8 +11,6 @@ const CodeNode = ({ data }) => {
         if(nodeRef.current){
             const { offsetWidth, offsetHeight } = nodeRef.current;
             updateNodeSize(data.label, { width: offsetWidth, height: offsetHeight })
-            console.log("UPDATED CODENODE REF")
-            console.log(`for data id ${data.label}`)
         }
     }, [data])
 

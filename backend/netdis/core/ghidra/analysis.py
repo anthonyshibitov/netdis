@@ -18,8 +18,7 @@ def ghidra_get_strings(program):
             for string in strings:
                 current_string = string.getString(memory)
                 json_strings[string.getAddress().toString()] = repr(current_string)
-            return json_strings
-                
+            return json_strings          
     except Exception as e:
         return {"error": e.toString()}
 

@@ -24,8 +24,6 @@ export default function FunctionList(props) {
             if (index !== -1 && scrollRefs.current[index]) {
                 scrollRefs.current[index].scrollIntoView({ behavior: 'smooth'});
             }
-            console.log("BANNER CODE")
-            console.log(funcs[index])
             //setAnalysisContext({...analysisContext, funcBanner: `${funcs[index].name}`})
         }
     }, [analysisContext.selectedFunction]);
@@ -60,8 +58,6 @@ export default function FunctionList(props) {
                     if(response.data.status == "DONE" && response.data.task_type == "cfg_analysis"){
                         clearInterval(timer);
                         const graph = response.data.result.json_result;
-                        console.log("GOT GRAPH")
-                        console.log(graph)
                         setAnalysisContext({...analysisContext, graph: graph, graphSet: true})
                     }
                     if(response.data.status == "DONE" && response.data.task_type == "error"){
@@ -87,10 +83,8 @@ export default function FunctionList(props) {
                     console.log(response);
                     if(response.data.status == "DONE" && response.data.task_type == "decomp_func"){
                         clearInterval(timer);
-                        console.log(response)
                         const decomp_result = response.data.result.decomp_result;
                         setAnalysisContext({...analysisContext, decomp: decomp_result})
-                        console.log(decomp_result)
                     }
                 }))
             }, 1000);

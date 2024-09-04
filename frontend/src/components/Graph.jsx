@@ -130,8 +130,6 @@ export default function Graph() {
 
     useEffect(() => {
         if (analysisContext.graphSet) {
-            console.log("FIRST NODE SIZES");
-            console.log(nodeSizes)
             convertToReactFlowFormat(analysisContext.graph, nodeSizes).then(convertedGraph => {
                 setGraph(convertedGraph);
                 setEdges(convertedGraph.edges);
@@ -156,7 +154,7 @@ export default function Graph() {
                         updatedNodes = updatedNodes.filter(node => node.data.text.length > 0);
                         setNodes(updatedNodes);
                     }).then(() => {
-                        console.log("AFTER FIRST UPDATE")
+                        // console.log("AFTER FIRST UPDATE")
                     })
                     .catch(error => {
                         console.error("Error fetching disassemblies:", error);
@@ -169,8 +167,6 @@ export default function Graph() {
         async function run() {
             if(Object.keys(nodeSizes).length != 0){
                 const result = await layoutGraph(nodes, edges, nodeSizes);
-                console.log("ACTUAL END")
-                console.log(result);
                 setNodes(result.nodes);
                 setEdges(result.edges);
             }

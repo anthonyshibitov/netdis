@@ -13,14 +13,12 @@ export default function Decompilation() {
         )
     }
 
-    useEffect(() => {
-        console.log("GOT CHANGE")
-        console.log(analysisContext.decomp)
-    }, [analysisContext.decomp])
+    // useEffect(() => {
+    //     console.log(analysisContext.decomp)
+    // }, [analysisContext.decomp])
 
     return (
         <div className="component-wrapper">
-            {/* <div className="component-title">Decompilation</div> */}
             <div className="component-body overflow-x-hidden font-mono text-xs">
                 <SyntaxHighlighter language="c" style={a11yLight} customStyle={{padding: 0}}>
                     {analysisContext.decomp}

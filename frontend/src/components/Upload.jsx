@@ -22,8 +22,6 @@ export default function UploadPage(props) {
         }
         let state;
         setStatus("Uploading...");
-        console.log("URL")
-        console.log(url)
         axios.post(url, formData, config).then((response => {
             /* If project_id is null, it is still processing/queued! */
             if(response.data.project_id != null){
@@ -43,16 +41,9 @@ export default function UploadPage(props) {
                         console.log(response);
                         if(response.data.status == "DONE" && response.data.task_type == "file_upload"){
                             clearInterval(timer);
-                            console.log("DONE API RESPONSE")
-                            console.log("Response data for task id", task_id)
-                            console.log(response.data);
                             const file_id = response.data.result.project_id;
-                            console.log("Uploaded project id..", file_id)
                             const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
                             axios.post(url, {"project_id": response.data.result.project_id}).then(response => {
-                                console.log("DONE FUNCS API RESPONSE")
-                                console.log("Response data for project id")
-                                console.log(response.data)
                                 callbackFunction ? callbackFunction() : '';
                                 navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                             })
@@ -73,11 +64,7 @@ export default function UploadPage(props) {
                 }, 1000);
             }
         })).catch(error => {
-            console.log("ERROR!!");
-            console.log(error.response.data);
             if(error.response.data.error){
-                console.log("ERROR");
-                console.log(error.response.data.error);
                 setStatus(`ERROR: ${error.response.data.error} - ${error.response.data.error_info}`)
                 return;
             }

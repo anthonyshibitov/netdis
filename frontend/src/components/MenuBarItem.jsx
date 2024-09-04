@@ -17,10 +17,8 @@ export default function MenuBarItem(props) {
             }
           };
       
-          // Bind the event listener
           document.addEventListener('mousedown', handleClickOutside);
       
-          // Unbind the event listener on cleanup
           return () => {
             document.removeEventListener('mousedown', handleClickOutside);
           };
