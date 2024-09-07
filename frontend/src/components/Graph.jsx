@@ -36,8 +36,6 @@ const layoutGraph = async (nodes, edges, nodeSizes) => {
     // Remove edges where the destination is a blank node
     const validEdges = edges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
     
-    console.log("NODE SIZES SHOULD BE SET");
-    console.log(nodeSizes);
     const graph = {
         id: 'root',
         layoutOptions: {
@@ -57,13 +55,7 @@ const layoutGraph = async (nodes, edges, nodeSizes) => {
             targets: [edge.target]
         }))
     };
-
-    console.log("BEFORE LAYOUT")
-    console.log(graph);
     const layout = await elk.layout(graph);
-    console.log("AFTER LAYOUT")
-    console.log(layout);
-
     const positionedNodes = layout.children.map(node => ({
         ...nodes.find(n => n.id === node.id),
         position: {
@@ -71,10 +63,6 @@ const layoutGraph = async (nodes, edges, nodeSizes) => {
             y: node.y,
         }
     }));
-
-    console.log(positionedNodes);
-
-    console.log("WERE DONE?")
 
     return { nodes: positionedNodes, edges };
 };
@@ -86,7 +74,7 @@ const convertToReactFlowFormat = async (graph, nodeSizes) => {
         data: { label: `Node ${node.id}`, text: '' },
         type: 'codeNode',
         draggable: true,
-        connectable: false,
+        nodesConnectable: false,
     }));
 
     const edges = graph.edges.map((edge, index) => {
@@ -127,6 +115,7 @@ export default function Graph() {
     const [graph, setGraph] = useState(null);
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+    const [error, setError] = useState();
 
     useEffect(() => {
         if (analysisContext.graphSet) {
@@ -153,11 +142,13 @@ export default function Graph() {
                         });
                         updatedNodes = updatedNodes.filter(node => node.data.text.length > 0);
                         setNodes(updatedNodes);
+                        setError();
                     }).then(() => {
                         // console.log("AFTER FIRST UPDATE")
                     })
                     .catch(error => {
                         console.error("Error fetching disassemblies:", error);
+                        setError(`Error fetching disassemblies: ${error}`)
                     });
             });
         }
@@ -186,6 +177,7 @@ export default function Graph() {
 
     return (
         <div className="component-wrapper font-xs text-mono">
+            {error && (<span>{error}</span>)}
                 <ReactFlowProvider>
                     <ReactFlow
                         nodes={nodes}
@@ -194,7 +186,7 @@ export default function Graph() {
                         // onEdgesChange={onEdgesChange}
                         nodeTypes={nodeTypes}
                         minZoom={0.05}
-                        connectable={false}
+                        nodesConnectable={false}
                         fitView
                     >
                         <Controls />
