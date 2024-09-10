@@ -18,3 +18,9 @@
  Deploy for production:
 
  `docker-compose -f docker-compose.yml -f docker-compose-prod.yml up --build`
+
+ ### Databse Migrations
+
+ Between changes to any Django models, old PostgreSQL volumes will need to be deleted. Otherwise, there will be errors to non-existant fields.
+
+ `docker volume rm netdis_postgres_data`
