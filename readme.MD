@@ -3,6 +3,10 @@
 
  ![Netdis user interface](netdis.png)
 
+Netdis is an open-source binary analysis tool powered by Ghidra. Upload files for disassembly, decompilation, control flow graphs and more, all in your browser.
+
+## [https://netdis.org/](https://netdis.org/)
+
  ## Deployment configuration
 
  The address of the backend needs to be specified in the respective `frontend/.env.vite.dev` and `frontend/.env.vite.prod` files, depending on the type of deployment. For development, this can typically be left at `http://localhost:8000/`. When deploying to production, this must point to the address of the backend. Additionally, the Vite files are built using this environment variable, so it may not reflect until the build has completed and the built files are available in the `frontend/dist/` directory.
@@ -19,7 +23,7 @@
 
  `docker-compose -f docker-compose.yml -f docker-compose-prod.yml up --build`
 
- ### Databse Migrations
+ ### Database Migrations
 
  Between changes to any Django models, old PostgreSQL volumes will need to be deleted. Otherwise, there will be errors to non-existant fields.
 
