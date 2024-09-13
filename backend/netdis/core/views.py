@@ -4,12 +4,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 # from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult, LoadersResult
 import hashlib
 import json
 from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block, query_storage
 from .utils import timer
-from .tasks import primary_analysis, cfg_analysis, decompile_function, get_rawhex, get_strings
+from .tasks import primary_analysis, cfg_analysis, decompile_function, get_rawhex, get_strings, get_loaders_task
 from .serializers import TaskSerializer
 import datetime
 import os
@@ -18,6 +18,46 @@ import os
 def test_view(request):
     data = {"result": "test"}
     return Response(data)
+
+@api_view(['POST'])
+@parser_classes([MultiPartParser])
+def get_loaders(request):
+    if(request.method == 'POST' and request.FILES.get('file')):
+        file_obj = request.FILES['file'] 
+        file_size = file_obj.size
+        contents = file_obj.read()
+        hash = hashlib.sha256(contents).hexdigest()
+        file_obj.name = hash
+        max_file_size = int(os.environ.get("MAX_FILE_SIZE"))
+        if(file_size > max_file_size):
+            # Reject if file is over 5mb
+            return Response({"error": "File too large", "error_info": file_size}, status=status.HTTP_400_BAD_REQUEST)
+        
+                
+        # if UploadedFile.objects.filter(hash = hash).exists():
+        #     # Uploaded file, and analysis already exists
+        #     uploaded_file = UploadedFile.objects.get(hash = hash)
+        #     project = Project.objects.get(file = uploaded_file)
+        #     print("Loaded project")
+        #     print(project)
+        #     return Response({ "project_id": project.id, "file_id": uploaded_file.id })
+        # else:
+        #     # Uploaded file does not exist. Upload, analyze, and delete it.
+        query_storage()
+        uploaded_file = UploadedFile(file=file_obj, hash=hash, file_size=file_size)
+        uploaded_file.save()
+        uploaded_file.evict_at = uploaded_file.uploaded_at + datetime.timedelta(days=2)
+        uploaded_file.save()
+        
+        print("Queueing worker...")
+        task = Task(status = "QUEUED", task_type='get_loaders')
+        task.save()
+        print(f"Task id {task.id}")
+        get_loaders_task(uploaded_file.id, task.id)
+        serializer = TaskSerializer(task)
+        return Response(serializer.data)
+ 
+    return Response("Bad request!", status=status.HTTP_400_BAD_REQUEST)
 
 @timer
 @api_view(['POST'])
@@ -134,6 +174,10 @@ def task(request, id):
                 case 'error':
                     result = ErrorResult.objects.get(id=task.object_id)
                     response['result'] = {"error": result.error_message}
+                case 'loaders':
+                    print("GIVE BACK LOADERS")
+                    result = LoadersResult.objects.get(id=task.object_id)
+                    response['result'] = {"loaders": result.loaders}
             task.delete()
         return Response(response)
     except Exception as e:

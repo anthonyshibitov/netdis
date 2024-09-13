@@ -8,6 +8,24 @@ import base64
 # os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
 
 @shared_task()
+def ghidra_get_loaders(program):
+    try:
+        with pyhidra.open_program(program, analyze=False) as flat_api:
+            from ghidra.app.util.opinion import LoaderService
+            from ghidra.app.util.bin import FileByteProvider
+            from java.nio.file import AccessMode
+            from java.io import File
+            byte_provider = FileByteProvider(File(program), None, AccessMode.READ)
+            load_specs = LoaderService.getAllSupportedLoadSpecs(byte_provider)
+            loaders = {}
+            for loader in load_specs:
+                loaders[loader.getName()] = loader.toString()
+                print(f"LOADER CLASS: {loader.toString()} LOADER NAME: {loader.getName()}")
+            return loaders
+    except Exception as e:
+        return {"error": e}
+
+@shared_task()
 def ghidra_get_strings(program):
     try:
         with pyhidra.open_program(program) as flat_api:

@@ -1,11 +1,37 @@
 # Celery tasks
-from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult
+from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult, LoadersResult
 from celery import shared_task
 from .utils import timer
 import subprocess
 import os
-from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func, ghidra_get_rawhex, ghidra_get_strings
+from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func, ghidra_get_rawhex, ghidra_get_strings, ghidra_get_loaders
 from django.contrib.contenttypes.models import ContentType
+
+def get_loaders_task(file_id, task_id):
+    file = UploadedFile.objects.get(pk=file_id)
+    print(f"Getting task... ID {task_id}")
+    task = Task.objects.get(pk=task_id)
+    task.status = "ACTIVE"
+    task.save()
+    file_path = "./media/" + file.file.name
+    ghidra_get_loaders.apply_async(args=(file_path,), link=get_loaders_task_callback.s(task.id, file_id))
+    
+@shared_task()   
+def get_loaders_task_callback(loader_result, task_id, file_id):
+    file = UploadedFile.objects.get(pk=file_id)
+    file.delete()
+    task = Task.objects.get(pk=task_id)
+    if 'error' in loader_result:
+        task.task_type = "error"
+        result = ErrorResult.objects.create(error_message=loader_result)
+    else:
+        task.task_type = "loaders"
+        result = LoadersResult.objects.create(loaders=loader_result)
+    task.status = "DONE"
+    task.content_type = ContentType.objects.get_for_model(result)
+    task.object_id = result.id
+    task.result = result
+    task.save()
 
 def primary_analysis(file_id, task_id):
     file = UploadedFile.objects.get(pk=file_id)

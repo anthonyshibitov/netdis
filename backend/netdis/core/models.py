@@ -60,3 +60,6 @@ class RawHexResult(models.Model):
     
 class StringsResult(models.Model):
     strings = models.JSONField()
+    
+class LoadersResult(models.Model):
+    loaders = models.JSONField()

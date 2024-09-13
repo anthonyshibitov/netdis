@@ -4,6 +4,7 @@ from .views import *
 urlpatterns = [
     path('test/', test_view, name='test'),
     path('binary_ingest/', binary_ingest, name='binary_ingest'),
+    path('get_loaders/', get_loaders, name='get_loaders'),
     
     path('funcs/', funcs, name='funcs'),
     path('blocks/', blocks, name='funcs'),
