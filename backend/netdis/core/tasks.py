@@ -33,7 +33,7 @@ def get_loaders_task_callback(loader_result, task_id, file_id):
     task.result = result
     task.save()
 
-def primary_analysis(file_id, task_id):
+def primary_analysis(file_id, task_id, loader, lang):
     file = UploadedFile.objects.get(pk=file_id)
     print(f"Getting task... ID {task_id}")
     task = Task.objects.get(pk=task_id)
@@ -53,21 +53,23 @@ def primary_analysis(file_id, task_id):
     proj_obj.save()
     print(f"Project ID created: {proj_obj.id}")
     print(f"Project obj id {proj_obj.id}")
-    ghidra_full_disassembly.apply_async(args=(task_id, file_path, proj_obj.id), link=primary_analysis_callback.s(task.id, proj_obj.id, file_id))
+    ghidra_full_disassembly.apply_async(args=(task_id, file_path, proj_obj.id, loader, lang), link=primary_analysis_callback.s(task.id, proj_obj.id, file_id))
     
 @shared_task()
 def primary_analysis_callback(error, task_id, project_id, file_id):
     print(f"Finished task id {task_id}")
     print(f"Finished project id {project_id}")
-    project = Project.objects.get(pk=project_id)
+    # project = Project.objects.get(pk=project_id)
+    file = UploadedFile.objects.get(pk=file_id)
     if error and 'error' in error:
         # Do some house cleaning..
         result = ErrorResult.objects.create(error_message=error)
-        project.delete()
-        file = UploadedFile.objects.get(pk=file_id)
+        # project.delete()
+        # file = UploadedFile.objects.get(pk=file_id)
+        print(f"error {error}")
         file.delete()
     else:
-        result = FileUploadResult.objects.create(project=project)
+        result = FileUploadResult.objects.create(file=file)
     result.save()
     task = Task.objects.get(pk=task_id)
     if error and 'error' in error:
@@ -75,7 +77,6 @@ def primary_analysis_callback(error, task_id, project_id, file_id):
     task.status = "DONE"
     task.content_type = ContentType.objects.get_for_model(result)
     task.object_id = result.id
-    # task.object_id = project_id
     task.result = result
     task.save()
     
@@ -109,6 +110,7 @@ def get_rawhex(file_id, task_id, address, length):
     task = Task.objects.get(pk=task_id)
     task.status = "ACTIVE"
     task.save()
+    print("Looking for file id", file_id)
     file = UploadedFile.objects.get(pk=file_id)
     file_path = "./media/" + file.file.name
     ghidra_get_rawhex.apply_async(args=(file_path, address, int(length)), link=get_rawhex_callback.s(task.id))

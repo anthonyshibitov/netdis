@@ -64,6 +64,14 @@ def get_loaders(request):
 @parser_classes([MultiPartParser])
 def binary_ingest(request):
     if(request.method == 'POST' and request.FILES.get('file')):
+        if request.data.get('loader'):
+            loader = request.data.get('loader')
+        else:
+            loader = None
+        if request.data.get('lang'):
+            lang = request.data.get('lang')
+        else:
+            lang = None
         file_obj = request.FILES['file'] 
         file_size = file_obj.size
         contents = file_obj.read()
@@ -92,8 +100,11 @@ def binary_ingest(request):
             print("Queueing worker...")
             task = Task(status = "QUEUED", task_type='file_upload')
             task.save()
+            print(f"File id {uploaded_file.id}")
             print(f"Task id {task.id}")
-            primary_analysis(uploaded_file.id, task.id)
+            print(f"USING LOADER: {loader}")
+            print(f"USING LANG: {lang}")
+            primary_analysis(uploaded_file.id, task.id, loader, lang)
             serializer = TaskSerializer(task)
             return Response(serializer.data)
  
@@ -153,12 +164,14 @@ def task(request, id):
         serializer = TaskSerializer(task)
         response = serializer.data
         if task.status == "DONE":
+            print(f"task type: {task.task_type}")
             match task.task_type:
                 case 'file_upload':
+                    print("trying..")
                     upload_result = FileUploadResult.objects.get(id=task.object_id)
-                    result = upload_result.project
+                    result = upload_result
                     print(f"POLLING TASK is asking for project id {result.id}")
-                    response["result"] = {"project_id": result.id}
+                    response["result"] = {"file_id": result.id}
                 case 'cfg_analysis':
                     result = CFGAnalysisResult.objects.get(id=task.object_id)
                     response["result"] = {"json_result": result.json_result}

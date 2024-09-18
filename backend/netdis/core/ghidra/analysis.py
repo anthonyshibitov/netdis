@@ -3,14 +3,16 @@ from ..models import Task, UploadedFile, Project, Function, Block, Disasm, CFGAn
 from django.contrib.contenttypes.models import ContentType
 from celery import shared_task
 import base64
+import jpype
 
 # This is for local dev
 # os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
 
 @shared_task()
 def ghidra_get_loaders(program):
+    print("THIS SHOULDNT HAVE A LOAD SPEC ISSUE...")
     try:
-        with pyhidra.open_program(program, analyze=False) as flat_api:
+        with pyhidra.open_program(program, analyze=False,language="x86:LE:64:default", loader="ghidra.app.util.opinion.BinaryLoader") as flat_api:
             from ghidra.app.util.opinion import LoaderService
             from ghidra.app.util.bin import FileByteProvider
             from java.nio.file import AccessMode
@@ -19,11 +21,19 @@ def ghidra_get_loaders(program):
             load_specs = LoaderService.getAllSupportedLoadSpecs(byte_provider)
             loaders = {}
             for loader in load_specs:
-                loaders[loader.getName()] = loader.toString()
+                loaders[loader.getName()] = loader.toString().split('@')[0]
                 print(f"LOADER CLASS: {loader.toString()} LOADER NAME: {loader.getName()}")
-            return loaders
+                
+            from ghidra.program.util import DefaultLanguageService
+            language_service = DefaultLanguageService.getLanguageService()
+            language_descs = language_service.getLanguageDescriptions(False)
+            langs = {}
+            for lang in language_descs:
+                # print(f"{lang.getLanguageID()} - {lang.getDescription()}")
+                langs[lang.getLanguageID().getIdAsString()] = lang.getDescription()
+            return [loaders, langs]
     except Exception as e:
-        return {"error": e}
+        return {"error": e.toString()}
 
 @shared_task()
 def ghidra_get_strings(program):
@@ -149,10 +159,20 @@ def ghidra_function_cfg(program, func_id):
     return cfg_result
 
 @shared_task()
-def ghidra_full_disassembly(task_id, program, proj_obj_id):
+def ghidra_full_disassembly(task_id, program, proj_obj_id, loader, language):
+    print("DOING LANGUAGE", language)
     task = Task.objects.get(pk=task_id)
     task.status = 'PROCESSING'
     task.save()
+    # if not jpype.isJVMStarted():
+    #     jvm_path = jpype.getDefaultJVMPath()
+    #     jpype.startJVM(jvm_path, "-Djava.class.path=/path/to/your/classpath")
+    try:
+        converted_language = jpype.JString(language)
+    except Exception as e:
+        print(e)
+        converted_language = language
+    print(f"CONVERTED {converted_language}")
     try:
         with pyhidra.open_program(program) as flat_api:
             from ghidra.util.task import TaskMonitor

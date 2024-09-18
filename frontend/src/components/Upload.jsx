@@ -7,18 +7,40 @@ export default function UploadPage(props) {
     const navigate = useNavigate();
     const callbackFunction = props.callback;
     const [loaders, setLoaders] = useState();
-    const [useLoaders, setUseLoaders] = useState(false)
+    const [useLoaders, setUseLoaders] = useState(false);
+    const [usingLoader, setUsingLoader] = useState();
+    const [selectedLoader, setSelectedLoader] = useState("NONE");
+    const [selectedLang, setSelectedLang] = useState("NONE");
+    const [selectedFile, setSelectedFile] = useState();
+
+    const handleFileChange = (e) => {
+        setSelectedFile(e.target.files[0])
+    }
 
     const handleLoaderCheckBox = () => {
         setUseLoaders(!useLoaders);
     }
 
-    function handleChange(event){
-        const file = event.target.files[0];
-        event.preventDefault();
+    const handleSelectedLoader = (e) => {
+        setSelectedLoader(e);
+        console.log(e);
+        console.log("selected loader", selectedLoader);
+    }
+
+    const handleSelectedLang = (e) => {
+        setSelectedLang(e);
+        console.log(e);
+        console.log("selected lang", selectedLang);
+    }
+
+    function uploadFile(event){
+        // const file = event.target.files[0];
+        // event.preventDefault();
         const formData = new FormData();
-        formData.append('file', file);
-        formData.append('fileName', file.name);
+        formData.append('file', selectedFile);
+        formData.append('fileName', selectedFile.name);
+        formData.append('loader', selectedLoader);
+        formData.append('lang', selectedLang)
         let timeProcessing = 0;
         const config = {
             headers: {
@@ -91,7 +113,7 @@ export default function UploadPage(props) {
                         navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                     })
                 } else {
-                    setStatus("File queued...");
+                    setStatus("Loading analyzers...");
                     const task_id = response.data.id;
                     const timer = setInterval(() => {
                         const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
@@ -101,6 +123,14 @@ export default function UploadPage(props) {
                                 clearInterval(timer);
                                 console.log("GOT LOADERS")
                                 console.log(response);
+                                setStatus("Loaded analyzers.")
+                                let loaders = response.data.result.loaders[1];
+
+                                // Convert the object into an array of [key, value] pairs
+                                let sortedLoadersArray = Object.entries(loaders).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+
+                                // Convert the sorted array back into an object
+                                response.data.result.loaders[1] = Object.fromEntries(sortedLoadersArray);
                                 setLoaders(response.data.result.loaders);
                             }
                             if(response.data.status == "PROCESSING"){
@@ -130,25 +160,37 @@ export default function UploadPage(props) {
     return (
         <div className="flex flex-col justify-center items-center p-4">
             <label htmlFor="file-upload" className="cursor-pointer m-4 px-6 py-3 hover:ring-2 text-white bg-ndblue rounded-md">Select file</label>
-            <input id="file-upload" type="file" className="hidden" onChange={handleChange}/>
+            <input id="file-upload" type="file" className="hidden" onChange={handleFileChange}/>
             <div className="p-2 font-mono">
                 {status}
             </div>
+            <button onClick={uploadFile}>Upload</button>
             <div className="p-2 text-slate-400 italic text-xs">(2mb file upload limit)</div>
-            <div className="">Advanced options</div>
-            <div>
-                <input type="checkbox" name="useLoader" id="useLoader" onChange={handleLoaderCheckBox}/>
-                <label htmlFor="useLoader">Use custom loader</label>
+            <div className="pt-10 flex gap-2 items-center flex-col p-2">
+                <div className="">Advanced options</div>
+                <div className="flex items-center gap-2">
+                    <input type="checkbox" name="useLoader" id="useLoader" onChange={handleLoaderCheckBox}/>
+                    <label htmlFor="useLoader">Specify loader</label>
+                </div>
+                {loaders &&
+                    <>
+                        <select onChange={e => handleSelectedLoader(e.target.value)} name="loaders" id="loaders">
+                        {Object.entries(loaders[0]).map(([name, string], key) => {
+                            return (
+                                <option key={key} value={string}>{name}-{string}</option>
+                            )
+                        })}
+                        </select>
+                        <select onChange={e => handleSelectedLang(e.target.value)} name="langs" id="langs">
+                        {Object.entries(loaders[1]).map(([name, string], key) => {
+                            return (
+                                <option key={key} value={name}>{name}-{string}</option>
+                            )
+                        })}
+                        </select>
+                    </>
+                }
             </div>
-            {loaders &&
-                <select name="loaders" id="loaders">
-                {Object.entries(loaders).map(([name, string], key) => {
-                    return (
-                        <option key={key} value={string}>{name}</option>
-                    )
-                })}
-                </select>
-            }
         </div>
     )
 }

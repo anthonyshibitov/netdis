@@ -44,7 +44,7 @@ class Task(models.Model):
     result = GenericForeignKey('content_type', 'object_id')
     
 class FileUploadResult(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE, null=True, blank=True)
     
 class CFGAnalysisResult(models.Model):
     json_result = models.JSONField()
