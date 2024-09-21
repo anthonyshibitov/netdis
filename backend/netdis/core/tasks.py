@@ -49,16 +49,15 @@ def primary_analysis(file_id, task_id, loader, lang):
     print(file.file.name)
     file_path = "./media/" + file.file.name
         
-    proj_obj = Project(file = file)
-    proj_obj.save()
-    print(f"Project ID created: {proj_obj.id}")
-    print(f"Project obj id {proj_obj.id}")
-    ghidra_full_disassembly.apply_async(args=(task_id, file_path, proj_obj.id, loader, lang), link=primary_analysis_callback.s(task.id, proj_obj.id, file_id))
+    # proj_obj = Project(file = file)
+    # proj_obj.save()
+    # print(f"Project ID created: {proj_obj.id}")
+    # print(f"Project obj id {proj_obj.id}")
+    ghidra_full_disassembly.apply_async(args=(task_id, file_path, file_id, loader, lang), link=primary_analysis_callback.s(task.id, file_id))
     
 @shared_task()
-def primary_analysis_callback(error, task_id, project_id, file_id):
+def primary_analysis_callback(error, task_id, file_id):
     print(f"Finished task id {task_id}")
-    print(f"Finished project id {project_id}")
     # project = Project.objects.get(pk=project_id)
     file = UploadedFile.objects.get(pk=file_id)
     if error and 'error' in error:

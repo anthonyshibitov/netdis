@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useEffect } from "react";
 
 export default function UploadPage(props) {
     const [status, setStatus] = useState("");
@@ -20,6 +21,15 @@ export default function UploadPage(props) {
     const handleLoaderCheckBox = () => {
         setUseLoaders(!useLoaders);
     }
+
+    useEffect(() => {
+        if (loaders) {
+            const firstLoader = Object.entries(loaders[0])[0][1]; // Get the first loader value
+            const firstLang = Object.entries(loaders[1])[0][0]; // Get the first language name
+            setSelectedLoader(firstLoader);
+            setSelectedLang(firstLang);
+        }
+    }, [loaders]);
 
     const handleSelectedLoader = (e) => {
         setSelectedLoader(e);
@@ -53,11 +63,11 @@ export default function UploadPage(props) {
             setStatus("Uploading...");
             axios.post(url, formData, config).then((response => {
                 /* If project_id is null, it is still processing/queued! */
-                if(response.data.project_id != null){
+                if(response.data.file_id != null){
                     console.log(response.data)
                     const file_id = response.data.file_id;
                     const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-                    axios.post(url, {"project_id": response.data.project_id}).then(response => {
+                    axios.post(url, {"file_id": response.data.file_id}).then(response => {
                         callbackFunction ? callbackFunction(): '';
                         navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                     })
@@ -70,9 +80,13 @@ export default function UploadPage(props) {
                             console.log(response);
                             if(response.data.status == "DONE" && response.data.task_type == "file_upload"){
                                 clearInterval(timer);
-                                const file_id = response.data.result.project_id;
+                                console.log("RECEIVED FROM UPLOAD PROCESSING...")
+                                console.log(response.data)
+                                const file_id = response.data.result.file_id;
                                 const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-                                axios.post(url, {"project_id": response.data.result.project_id}).then(response => {
+                                axios.post(url, {"file_id": response.data.result.file_id}).then(response => {
+                                    console.log("funcs response")
+                                    console.log(response.data)
                                     callbackFunction ? callbackFunction() : '';
                                     navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
                                 })
@@ -103,51 +117,40 @@ export default function UploadPage(props) {
             let state;
             setStatus("Uploading...");
             axios.post(url, formData, config).then((response => {
-                /* If project_id is null, it is still processing/queued! */
-                if(response.data.project_id != null){
-                    console.log(response.data)
-                    const file_id = response.data.file_id;
-                    const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
-                    axios.post(url, {"project_id": response.data.project_id}).then(response => {
-                        callbackFunction ? callbackFunction(): '';
-                        navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
-                    })
-                } else {
-                    setStatus("Loading analyzers...");
-                    const task_id = response.data.id;
-                    const timer = setInterval(() => {
-                        const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
-                        const resp = axios.get(url).then((response => {
+                setStatus("Loading analyzers...");
+                const task_id = response.data.id;
+                const timer = setInterval(() => {
+                    const url = import.meta.env.VITE_BACKEND + "api/task/" + task_id;
+                    const resp = axios.get(url).then((response => {
+                        console.log(response);
+                        if(response.data.status == "DONE" && response.data.task_type == "loaders"){
+                            clearInterval(timer);
+                            console.log("GOT LOADERS")
                             console.log(response);
-                            if(response.data.status == "DONE" && response.data.task_type == "loaders"){
-                                clearInterval(timer);
-                                console.log("GOT LOADERS")
-                                console.log(response);
-                                setStatus("Loaded analyzers.")
-                                let loaders = response.data.result.loaders[1];
+                            setStatus("Loaded analyzers.")
+                            let loaders = response.data.result.loaders[1];
 
-                                // Convert the object into an array of [key, value] pairs
-                                let sortedLoadersArray = Object.entries(loaders).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+                            // Convert the object into an array of [key, value] pairs
+                            let sortedLoadersArray = Object.entries(loaders).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
 
-                                // Convert the sorted array back into an object
-                                response.data.result.loaders[1] = Object.fromEntries(sortedLoadersArray);
-                                setLoaders(response.data.result.loaders);
-                            }
-                            if(response.data.status == "PROCESSING"){
-                                setStatus(`Processing. Time elapsed: ${timeProcessing}s`);
-                                timeProcessing += 1;
-                            }
-                            if(response.data.status == "DONE" && response.data.task_type == "error"){
-                                let result = response.data.result.error;
-                                // Pesky single quotes!
-                                result = result.replace(/'/g, '"');
-                                result = JSON.parse(result)
-                                clearInterval(timer)
-                                setStatus(`ERROR: ${result.error}`)
-                            }
-                        }))
-                    }, 1000);
-                }
+                            // Convert the sorted array back into an object
+                            response.data.result.loaders[1] = Object.fromEntries(sortedLoadersArray);
+                            setLoaders(response.data.result.loaders);
+                        }
+                        if(response.data.status == "PROCESSING"){
+                            setStatus(`Processing. Time elapsed: ${timeProcessing}s`);
+                            timeProcessing += 1;
+                        }
+                        if(response.data.status == "DONE" && response.data.task_type == "error"){
+                            let result = response.data.result.error;
+                            // Pesky single quotes!
+                            result = result.replace(/'/g, '"');
+                            result = JSON.parse(result)
+                            clearInterval(timer)
+                            setStatus(`ERROR: ${result.error}`)
+                        }
+                    }))
+                }, 1000);
             })).catch(error => {
                 if(error.response.data.error){
                     setStatus(`ERROR: ${error.response.data.error} - ${error.response.data.error_info}`)

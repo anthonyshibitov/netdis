@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult, LoadersResult
 import hashlib
 import json
-from .utils import get_functions_from_project, get_blocks_from_function, get_disasm_from_block, query_storage
+from .utils import get_functions_from_file, get_blocks_from_function, get_disasm_from_block, query_storage
 from .utils import timer
 from .tasks import primary_analysis, cfg_analysis, decompile_function, get_rawhex, get_strings, get_loaders_task
 from .serializers import TaskSerializer
@@ -85,10 +85,10 @@ def binary_ingest(request):
         if UploadedFile.objects.filter(hash = hash).exists():
             # Uploaded file, and analysis already exists
             uploaded_file = UploadedFile.objects.get(hash = hash)
-            project = Project.objects.get(file = uploaded_file)
-            print("Loaded project")
-            print(project)
-            return Response({ "project_id": project.id, "file_id": uploaded_file.id })
+            # project = Project.objects.get(file = uploaded_file)
+            print("Loaded file")
+            print(uploaded_file)
+            return Response({ "file_id": uploaded_file.id })
         else:
             # Uploaded file does not exist. Upload, analyze, and delete it.
             query_storage()
@@ -115,12 +115,12 @@ def funcs(request):
     if(request.body):
         data_dict = json.loads(request.body.decode("utf-8"))
         try:
-            project_id = data_dict['project_id']
+            file_id = data_dict['file_id']
         except Exception as error:
             return Response(f"ERROR: {error.__str__()}")
-        print("Loading funcs for project_id", project_id)
-        print(get_functions_from_project(project_id))
-        return Response(get_functions_from_project(project_id))
+        print("Loading funcs for file_id", file_id)
+        print(get_functions_from_file(file_id))
+        return Response(get_functions_from_file(file_id))
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
@@ -170,8 +170,8 @@ def task(request, id):
                     print("trying..")
                     upload_result = FileUploadResult.objects.get(id=task.object_id)
                     result = upload_result
-                    print(f"POLLING TASK is asking for project id {result.id}")
-                    response["result"] = {"file_id": result.id}
+                    print(f"POLLING TASK is asking for file id {result.file_id}")
+                    response["result"] = {"file_id": result.file_id}
                 case 'cfg_analysis':
                     result = CFGAnalysisResult.objects.get(id=task.object_id)
                     response["result"] = {"json_result": result.json_result}

@@ -16,7 +16,7 @@ class Project(models.Model):
     file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
     
 class Function(models.Model):
-    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
     addr = models.CharField(max_length=64)
     name = models.CharField(max_length=256)
     cfg = models.BooleanField(default=False)

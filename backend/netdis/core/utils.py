@@ -30,8 +30,8 @@ def get_project_from_hash(hash):
             return None
     return None
 
-def get_functions_from_project(project_id):
-    function_list = Function.objects.filter(project_id=int(project_id))
+def get_functions_from_file(file_id):
+    function_list = Function.objects.filter(file_id=int(file_id))
     serializer = FunctionSerializer(function_list, many=True)
     return serializer.data
 

@@ -159,7 +159,7 @@ def ghidra_function_cfg(program, func_id):
     return cfg_result
 
 @shared_task()
-def ghidra_full_disassembly(task_id, program, proj_obj_id, loader, language):
+def ghidra_full_disassembly(task_id, program, file_id, loader, language):
     print("DOING LANGUAGE", language)
     task = Task.objects.get(pk=task_id)
     task.status = 'PROCESSING'
@@ -167,14 +167,31 @@ def ghidra_full_disassembly(task_id, program, proj_obj_id, loader, language):
     # if not jpype.isJVMStarted():
     #     jvm_path = jpype.getDefaultJVMPath()
     #     jpype.startJVM(jvm_path, "-Djava.class.path=/path/to/your/classpath")
+    # try:
+    #     if language != None:
+    #         converted_language = jpype.JString(language)
+    # except Exception as e:
+    #     print(e)
+    #     converted_language = language
+    # print(f"CONVERTED {converted_language}")
+    # loader = None
+    # language = None
+    
     try:
-        converted_language = jpype.JString(language)
+        kwargs = {}
+        if language is not None:
+            converted_language = jpype.JString(language)
+            kwargs['language'] = converted_language
+        if loader is not None:
+            kwargs['loader'] = loader
     except Exception as e:
         print(e)
         converted_language = language
+
     print(f"CONVERTED {converted_language}")
+    
     try:
-        with pyhidra.open_program(program) as flat_api:
+        with pyhidra.open_program(program, **kwargs) as flat_api:
             from ghidra.util.task import TaskMonitor
             import ghidra.program.model.block as blockmodel
             monitor = TaskMonitor.DUMMY
@@ -183,8 +200,8 @@ def ghidra_full_disassembly(task_id, program, proj_obj_id, loader, language):
             print("NOW THIS IS WHEN INTENSE PORTION STARTS!")
             for f in ghidra_functions:
                 print(f)
-                project = Project.objects.get(pk = proj_obj_id)
-                function_obj = Function(project=project,name=f.getName(), addr=f.getEntryPoint())
+                file = UploadedFile.objects.get(pk = file_id)
+                function_obj = Function(file=file,name=f.getName(), addr=f.getEntryPoint())
                 function_obj.save()
                 code_block_model = blockmodel.BasicBlockModel(currentProgram)
                 blocks = code_block_model.getCodeBlocksContaining(f.body, monitor)
