@@ -9,10 +9,12 @@ export default function UploadPage(props) {
     const callbackFunction = props.callback;
     const [loaders, setLoaders] = useState();
     const [useLoaders, setUseLoaders] = useState(false);
+    const [showLoaderCheckbox, setShowLoaderCheckbox] = useState(true);
     const [usingLoader, setUsingLoader] = useState();
     const [selectedLoader, setSelectedLoader] = useState("NONE");
     const [selectedLang, setSelectedLang] = useState("NONE");
     const [selectedFile, setSelectedFile] = useState();
+    const [uploadText, setUploadText] = useState("Analyze")
 
     const handleFileChange = (e) => {
         setSelectedFile(e.target.files[0])
@@ -20,6 +22,12 @@ export default function UploadPage(props) {
 
     const handleLoaderCheckBox = () => {
         setUseLoaders(!useLoaders);
+        if(!useLoaders){
+            setUploadText("Detect available specs");
+        }
+        if(useLoaders){
+            setUploadText("Analyze");
+        }
     }
 
     useEffect(() => {
@@ -136,6 +144,11 @@ export default function UploadPage(props) {
                             // Convert the sorted array back into an object
                             response.data.result.loaders[1] = Object.fromEntries(sortedLoadersArray);
                             setLoaders(response.data.result.loaders);
+                            // To upload file normally..
+                            // setUseLoaders(false);
+                            // Hacky...
+                            handleLoaderCheckBox();
+                            setShowLoaderCheckbox(false);
                         }
                         if(response.data.status == "PROCESSING"){
                             setStatus(`Processing. Time elapsed: ${timeProcessing}s`);
@@ -162,32 +175,39 @@ export default function UploadPage(props) {
 
     return (
         <div className="flex flex-col justify-center items-center p-4">
-            <label htmlFor="file-upload" className="cursor-pointer m-4 px-6 py-3 hover:ring-2 text-white bg-ndblue rounded-md">Select file</label>
+            <label htmlFor="file-upload" className="border-2 border-dashed border-slate-200 cursor-pointer m-4 px-8 py-8 hover:ring-2 text-black bg-slate-100 rounded-md">
+                {!selectedFile ? (<>Select file</>) : (<>{selectedFile.name}</>)}
+            </label>
             <input id="file-upload" type="file" className="hidden" onChange={handleFileChange}/>
             <div className="p-2 font-mono">
                 {status}
             </div>
-            <button onClick={uploadFile}>Upload</button>
+            <button className="cursor-pointer px-6 py-3 hover:ring-2 text-white bg-ndblue rounded-md" onClick={uploadFile}>{uploadText}</button>
             <div className="p-2 text-slate-400 italic text-xs">(2mb file upload limit)</div>
             <div className="pt-10 flex gap-2 items-center flex-col p-2">
-                <div className="">Advanced options</div>
-                <div className="flex items-center gap-2">
-                    <input type="checkbox" name="useLoader" id="useLoader" onChange={handleLoaderCheckBox}/>
-                    <label htmlFor="useLoader">Specify loader</label>
+                {showLoaderCheckbox && 
+                <div>
+                    <div className="">Advanced options</div>
+                    <div className="flex items-center gap-2">
+                        <input type="checkbox" name="useLoader" id="useLoader" onChange={handleLoaderCheckBox}/>
+                        <label htmlFor="useLoader">Specify loader</label>
+                    </div>
                 </div>
+                }
                 {loaders &&
                     <>
-                        <select onChange={e => handleSelectedLoader(e.target.value)} name="loaders" id="loaders">
+                        <div>Select an appropriate loader and language</div>
+                        <select className="w-full border-black border-2 rounded" onChange={e => handleSelectedLoader(e.target.value)} name="loaders" id="loaders" size="5">
                         {Object.entries(loaders[0]).map(([name, string], key) => {
                             return (
-                                <option key={key} value={string}>{name}-{string}</option>
+                                <option key={key} value={string}>{name}</option>
                             )
                         })}
                         </select>
-                        <select onChange={e => handleSelectedLang(e.target.value)} name="langs" id="langs">
+                        <select className="w-full border-black border-2 rounded" onChange={e => handleSelectedLang(e.target.value)} name="langs" id="langs" size="10">
                         {Object.entries(loaders[1]).map(([name, string], key) => {
                             return (
-                                <option key={key} value={name}>{name}-{string}</option>
+                                <option key={key} value={name}>{name} - {string}</option>
                             )
                         })}
                         </select>
