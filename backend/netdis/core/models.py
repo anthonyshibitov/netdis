@@ -10,6 +10,7 @@ class UploadedFile(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     evict_at = models.DateTimeField(null=True, blank=True)
     file_size = models.IntegerField()
+    image_base = models.CharField(max_length=64, null=True, blank=True)
 
     
 class Project(models.Model):

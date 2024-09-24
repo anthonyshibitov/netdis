@@ -164,18 +164,6 @@ def ghidra_full_disassembly(task_id, program, file_id, loader, language):
     task = Task.objects.get(pk=task_id)
     task.status = 'PROCESSING'
     task.save()
-    # if not jpype.isJVMStarted():
-    #     jvm_path = jpype.getDefaultJVMPath()
-    #     jpype.startJVM(jvm_path, "-Djava.class.path=/path/to/your/classpath")
-    # try:
-    #     if language != None:
-    #         converted_language = jpype.JString(language)
-    # except Exception as e:
-    #     print(e)
-    #     converted_language = language
-    # print(f"CONVERTED {converted_language}")
-    # loader = None
-    # language = None
     
     try:
         kwargs = {}
@@ -198,6 +186,11 @@ def ghidra_full_disassembly(task_id, program, file_id, loader, language):
             currentProgram = flat_api.getCurrentProgram()
             ghidra_functions = currentProgram.getFunctionManager().getFunctions(True)
             print("NOW THIS IS WHEN INTENSE PORTION STARTS!")
+            image_base = currentProgram.getImageBase().toString()
+            print(f"IMAGE BASE: {image_base}")
+            file = UploadedFile.objects.get(pk=file_id)
+            file.image_base = image_base
+            file.save()
             for f in ghidra_functions:
                 print(f)
                 file = UploadedFile.objects.get(pk = file_id)
