@@ -72,12 +72,14 @@ export default function UploadPage(props) {
             axios.post(url, formData, config).then((response => {
                 /* If project_id is null, it is still processing/queued! */
                 if(response.data.file_id != null){
+                    console.log("RECEIVED FROM UPLOAD PROCESSING...")
                     console.log(response.data)
                     const file_id = response.data.file_id;
                     const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
+                    const image_base = response.data.image_base;
                     axios.post(url, {"file_id": response.data.file_id}).then(response => {
                         callbackFunction ? callbackFunction(): '';
-                        navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
+                        navigate("/analysis", {state: {funcs: response.data, file_id: file_id, image_base: image_base}, replace: true});
                     })
                 } else {
                     setStatus("File queued...");
@@ -91,12 +93,13 @@ export default function UploadPage(props) {
                                 console.log("RECEIVED FROM UPLOAD PROCESSING...")
                                 console.log(response.data)
                                 const file_id = response.data.result.file_id;
+                                const image_base = response.data.result.image_base;
                                 const url = `${import.meta.env.VITE_BACKEND}api/funcs/`;
                                 axios.post(url, {"file_id": response.data.result.file_id}).then(response => {
                                     console.log("funcs response")
                                     console.log(response.data)
                                     callbackFunction ? callbackFunction() : '';
-                                    navigate("/analysis", {state: {funcs: response.data, file_id: file_id}, replace: true});
+                                    navigate("/analysis", {state: {funcs: response.data, file_id: file_id, image_base: image_base}, replace: true});
                                 })
                             }
                             if(response.data.status == "PROCESSING"){
@@ -111,14 +114,18 @@ export default function UploadPage(props) {
                                 clearInterval(timer)
                                 setStatus(`ERROR: ${result.error}`)
                             }
-                        }))
+                        })).catch(error => {
+                            console.log(`new error ${error}`);
+                        })
                     }, 1000);
                 }
             })).catch(error => {
-                if(error.response.data.error){
-                    setStatus(`ERROR: ${error.response.data.error} - ${error.response.data.error_info}`)
-                    return;
-                }
+                console.log(error);
+                // if(error.response.data.error){
+                //     setStatus(`ERROR: ${error.response.data.error} - ${error.response.data.error_info}`)
+                //     return;
+                // }
+                setStatus(`ERROR: ${error}`);
             })
         } else {
             const url = import.meta.env.VITE_BACKEND + "api/get_loaders/";

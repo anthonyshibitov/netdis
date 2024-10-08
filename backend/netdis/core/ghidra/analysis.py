@@ -52,20 +52,22 @@ def ghidra_get_strings(program):
 
 @shared_task()
 def ghidra_get_rawhex(program, address, length):
+    print(f"PROGRAM: {program} ADDRESS: {address} LENGTH: {length}")
     try:
         with pyhidra.open_program(program) as flat_api:
             from ghidra.program.model.address import Address
             currentProgram = flat_api.getCurrentProgram()
             
             address_factory = currentProgram.getAddressFactory()
-            address = address_factory.getAddress(address)
+            address = address_factory.getAddress(str(address))
             memory = currentProgram.getMemory()
-            valid_lengths = [1, 2, 4, 8, 16, 32, 64, 128]
+            valid_lengths = [1, 2, 4, 8, 16, 32, 64, 128, 512]
             if length not in valid_lengths:
                 return {"error": "Invalid size"}
             if memory.contains(address):
                 byte_array = {}
                 for byte in range(length):
+                    print("At address: ", str(address))
                     try:
                         byte_array[str(address)] = format(memory.getByte(address) & 0xFF, '02x')
                     except:
@@ -160,23 +162,21 @@ def ghidra_function_cfg(program, func_id):
 
 @shared_task()
 def ghidra_full_disassembly(task_id, program, file_id, loader, language):
-    print("DOING LANGUAGE", language)
+    print(f"DOING LANGUAGE: '{language}'")
     task = Task.objects.get(pk=task_id)
     task.status = 'PROCESSING'
     task.save()
     
+    kwargs = {}
     try:
-        kwargs = {}
-        if language is not None:
-            converted_language = jpype.JString(language)
-            kwargs['language'] = converted_language
-        if loader is not None:
+        if language is not None and language.upper() != "NONE":
+            kwargs['language'] = language
+        if loader is not None and loader.upper() != "NONE":
             kwargs['loader'] = loader
     except Exception as e:
-        print(e)
-        converted_language = language
-
-    print(f"CONVERTED {converted_language}")
+        print(f"Error setting up kwargs: {str(e)}")
+    
+    print(f"Using kwargs: {kwargs}")
     
     try:
         with pyhidra.open_program(program, **kwargs) as flat_api:
@@ -212,4 +212,6 @@ def ghidra_full_disassembly(task_id, program, file_id, loader, language):
                         disasm_obj.save()
                         instruction = instruction.getNext()
     except Exception as e:
-        return {"error": e.toString()}
+        error_message = str(e)
+        print(f"Error in ghidra_full_disassembly: {error_message}")
+        return {"error": error_message}

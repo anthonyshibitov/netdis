@@ -17,6 +17,7 @@ import Strings from "../components/Strings.jsx";
 
 const AnalysisPage = () => {
     const { state } = useLocation();
+    console.log(state);
     const [analysisContext, setAnalysisContext] = useState({ "selectedFunction": null });
     const [menuContext, setMenuContext] = useState({
         disasmView: true, 

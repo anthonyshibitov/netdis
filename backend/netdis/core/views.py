@@ -88,7 +88,7 @@ def binary_ingest(request):
             # project = Project.objects.get(file = uploaded_file)
             print("Loaded file")
             print(uploaded_file)
-            return Response({ "file_id": uploaded_file.id })
+            return Response({ "file_id": uploaded_file.id, "image_base": uploaded_file.image_base })
         else:
             # Uploaded file does not exist. Upload, analyze, and delete it.
             query_storage()
@@ -170,8 +170,13 @@ def task(request, id):
                     print("trying..")
                     upload_result = FileUploadResult.objects.get(id=task.object_id)
                     result = upload_result
+                    print("result")
+                    print(result)
                     print(f"POLLING TASK is asking for file id {result.file_id}")
-                    response["result"] = {"file_id": result.file_id}
+                    image_base = UploadedFile.objects.get(pk=result.file_id).image_base
+                    print(f"image base: {image_base}")
+                    response["result"] = {"file_id": result.file_id, "image_base": image_base}
+                    print(response)
                 case 'cfg_analysis':
                     result = CFGAnalysisResult.objects.get(id=task.object_id)
                     response["result"] = {"json_result": result.json_result}
