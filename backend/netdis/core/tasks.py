@@ -6,6 +6,9 @@ import subprocess
 import os
 from .ghidra.analysis import ghidra_function_cfg, ghidra_full_disassembly, ghidra_decompile_func, ghidra_get_rawhex, ghidra_get_strings, ghidra_get_loaders
 from django.contrib.contenttypes.models import ContentType
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_loaders_task(file_id, task_id):
     file = UploadedFile.objects.get(pk=file_id)
@@ -45,7 +48,8 @@ def primary_analysis(file_id, task_id, loader, lang):
         print("Project already exists. Returning project ID...")
         return proj_obj.id
     
-    print("Project doesn't exist. Let's make one and analyze the file.")
+    print("Project doesn't exist. Let's make one and analyze the file. Added debug below")
+    logger.debug("Project doesn't exist. Let's make one and analyze the file.")
     print(file.file.name)
     file_path = "./media/" + file.file.name
         
@@ -180,9 +184,9 @@ def get_strings_callback(strings_result, task_id):
     task.save()
     
 from netdis.core.models import ErrorResult
-from celery.utils.log import get_task_logger
+# from celery.utils.log import get_task_logger
 
-logger = get_task_logger(__name__)
+# logger = get_task_logger(__name__)
 
 @shared_task
 def test():

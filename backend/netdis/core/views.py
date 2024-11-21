@@ -1,7 +1,6 @@
 from rest_framework.decorators import api_view, parser_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
-# from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.http import Http404, HttpResponseBadRequest
 from .models import Task, UploadedFile, Project, Function, Block, Disasm, FileUploadResult, CFGAnalysisResult, DecompAnalysisResult, ErrorResult, RawHexResult, StringsResult, LoadersResult
@@ -13,6 +12,9 @@ from .tasks import primary_analysis, cfg_analysis, decompile_function, get_rawhe
 from .serializers import TaskSerializer
 import datetime
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 def test_view(request):
@@ -32,27 +34,16 @@ def get_loaders(request):
         if(file_size > max_file_size):
             # Reject if file is over 5mb
             return Response({"error": "File too large", "error_info": file_size}, status=status.HTTP_400_BAD_REQUEST)
-        
-                
-        # if UploadedFile.objects.filter(hash = hash).exists():
-        #     # Uploaded file, and analysis already exists
-        #     uploaded_file = UploadedFile.objects.get(hash = hash)
-        #     project = Project.objects.get(file = uploaded_file)
-        #     print("Loaded project")
-        #     print(project)
-        #     return Response({ "project_id": project.id, "file_id": uploaded_file.id })
-        # else:
-        #     # Uploaded file does not exist. Upload, analyze, and delete it.
         query_storage()
         uploaded_file = UploadedFile(file=file_obj, hash=hash, file_size=file_size)
         uploaded_file.save()
         uploaded_file.evict_at = uploaded_file.uploaded_at + datetime.timedelta(days=2)
         uploaded_file.save()
         
-        print("Queueing worker...")
+        logger.debug("Queueing worker...")
         task = Task(status = "QUEUED", task_type='get_loaders')
         task.save()
-        print(f"Task id {task.id}")
+        logger.debug(f"Task id {task.id}")
         get_loaders_task(uploaded_file.id, task.id)
         serializer = TaskSerializer(task)
         return Response(serializer.data)
@@ -164,19 +155,13 @@ def task(request, id):
         serializer = TaskSerializer(task)
         response = serializer.data
         if task.status == "DONE":
-            print(f"task type: {task.task_type}")
+            logger.debug(f"task type: {task.task_type}")
             match task.task_type:
                 case 'file_upload':
-                    print("trying..")
-                    upload_result = FileUploadResult.objects.get(id=task.object_id)
-                    result = upload_result
-                    print("result")
-                    print(result)
-                    print(f"POLLING TASK is asking for file id {result.file_id}")
+                    result = FileUploadResult.objects.get(id=task.object_id)
+                    logger.debug(f"Task is asking for file id {result.file_id}")
                     image_base = UploadedFile.objects.get(pk=result.file_id).image_base
-                    print(f"image base: {image_base}")
                     response["result"] = {"file_id": result.file_id, "image_base": image_base}
-                    print(response)
                 case 'cfg_analysis':
                     result = CFGAnalysisResult.objects.get(id=task.object_id)
                     response["result"] = {"json_result": result.json_result}
@@ -193,13 +178,14 @@ def task(request, id):
                     result = ErrorResult.objects.get(id=task.object_id)
                     response['result'] = {"error": result.error_message}
                 case 'loaders':
-                    print("GIVE BACK LOADERS")
                     result = LoadersResult.objects.get(id=task.object_id)
                     response['result'] = {"loaders": result.loaders}
             task.delete()
         return Response(response)
+    except Task.DoesNotExist as e:
+        return Response('Task does not exist', status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        return Response('Task does not exist', status=status.HTTP_400_BAD_REQUEST)
+        return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def func_graph(request):
@@ -234,7 +220,7 @@ def rawhex(request):
         length = data_dict['length']
         task = Task.objects.create(task_type='raw_request')
         task.save()
-        print(f"Address: {address}, length: {length}, file id {file_id}")
+        logger.debug(f"Address: {address}, length: {length}, file id {file_id}")
         get_rawhex(file_id, task.id, address, length)
         return Response({"task_id": task.id, "status": task.status})
     return Response('Bad request!', status=status.HTTP_400_BAD_REQUEST)
@@ -242,7 +228,6 @@ def rawhex(request):
 @api_view(['POST'])
 def strings(request):
     if(request.body):
-        print("GOOD REQUEST")
         data_dict = json.loads(request.body.decode("utf-8"))
         file_id = data_dict['file_id']
         task = Task.objects.create(task_type='strings')

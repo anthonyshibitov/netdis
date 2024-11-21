@@ -4,6 +4,9 @@ from django.contrib.contenttypes.models import ContentType
 from celery import shared_task
 import base64
 import jpype
+import logging
+
+logger = logging.getLogger(__name__)
 
 # This is for local dev
 # os.environ['GHIDRA_INSTALL_DIR'] = "/Users/sasha/Desktop/ghidra_10.3.2_PUBLIC/"
@@ -22,14 +25,13 @@ def ghidra_get_loaders(program):
             loaders = {}
             for loader in load_specs:
                 loaders[loader.getName()] = loader.toString().split('@')[0]
-                print(f"LOADER CLASS: {loader.toString()} LOADER NAME: {loader.getName()}")
+                logger.debug(f"LOADER CLASS: {loader.toString()} LOADER NAME: {loader.getName()}")
                 
             from ghidra.program.util import DefaultLanguageService
             language_service = DefaultLanguageService.getLanguageService()
             language_descs = language_service.getLanguageDescriptions(False)
             langs = {}
             for lang in language_descs:
-                # print(f"{lang.getLanguageID()} - {lang.getDescription()}")
                 langs[lang.getLanguageID().getIdAsString()] = lang.getDescription()
             return [loaders, langs]
     except Exception as e:
@@ -67,7 +69,7 @@ def ghidra_get_rawhex(program, address, length):
             if memory.contains(address):
                 byte_array = {}
                 for byte in range(length):
-                    print("At address: ", str(address))
+                    logger.debug(f"At address: {str(address)}")
                     try:
                         byte_array[str(address)] = format(memory.getByte(address) & 0xFF, '02x')
                     except:
@@ -162,7 +164,7 @@ def ghidra_function_cfg(program, func_id):
 
 @shared_task()
 def ghidra_full_disassembly(task_id, program, file_id, loader, language):
-    print(f"DOING LANGUAGE: '{language}'")
+    logger.debug(f"DOING LANGUAGE: '{language}'")
     task = Task.objects.get(pk=task_id)
     task.status = 'PROCESSING'
     task.save()
@@ -174,9 +176,9 @@ def ghidra_full_disassembly(task_id, program, file_id, loader, language):
         if loader is not None and loader.upper() != "NONE":
             kwargs['loader'] = loader
     except Exception as e:
-        print(f"Error setting up kwargs: {str(e)}")
+        logger.debug(f"Error setting up kwargs: {str(e)}")
     
-    print(f"Using kwargs: {kwargs}")
+    logger.debug(f"Using kwargs: {kwargs}")
     
     try:
         with pyhidra.open_program(program, **kwargs) as flat_api:
@@ -185,9 +187,8 @@ def ghidra_full_disassembly(task_id, program, file_id, loader, language):
             monitor = TaskMonitor.DUMMY
             currentProgram = flat_api.getCurrentProgram()
             ghidra_functions = currentProgram.getFunctionManager().getFunctions(True)
-            print("NOW THIS IS WHEN INTENSE PORTION STARTS!")
             image_base = currentProgram.getImageBase().toString()
-            print(f"IMAGE BASE: {image_base}")
+            logger.debug(f"Starting full disasm. IMAGE BASE: {image_base}")
             file = UploadedFile.objects.get(pk=file_id)
             file.image_base = image_base
             file.save()
@@ -213,5 +214,5 @@ def ghidra_full_disassembly(task_id, program, file_id, loader, language):
                         instruction = instruction.getNext()
     except Exception as e:
         error_message = str(e)
-        print(f"Error in ghidra_full_disassembly: {error_message}")
+        logger.error(f"Error in ghidra_full_disassembly: {error_message}")
         return {"error": error_message}
